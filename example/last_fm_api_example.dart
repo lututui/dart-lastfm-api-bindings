@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:last_fm_api/last_fm_api.dart';
+import 'package:last_fm_api/src/period.dart';
 
 Future<void> main() async {
   final readLines = File('secret.yaml').readAsLinesSync();
@@ -17,5 +18,12 @@ Future<void> main() async {
     lastfm.chart.getTopArtists(limit: 2),
     lastfm.chart.getTopTags(limit: 2),
     lastfm.chart.getTopTracks(limit: 2),
+    lastfm.artist
+        .getTopTracks(artistName: 'Beyoncé', autocorrect: true, limit: 2),
+    lastfm.artist
+        .getTopTracks(mbid: 'f59c5520-5f46-4d2c-b2c4-822eabf53419', limit: 3),
+    lastfm.tag.getTopTracks('loquendo', limit: 4),
+    lastfm.user
+        .getTopTracks('tutstutui', period: LastFM_Period.trimester, limit: 1),
   ]).then((value) => value.forEach(print));
 }

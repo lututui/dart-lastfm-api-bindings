@@ -24,7 +24,7 @@ class TopArtistInfo extends ArtistInfo {
   factory TopArtistInfo(Map<String, dynamic> data) {
     return TopArtistInfo._(
       decodeString(data['name']),
-      int.parse(data['playcount']),
+      int.parse(data['playcount'] ?? '0'),
       int.parse(data['listeners']),
       data['mbid'],
       data['artistUrl'],

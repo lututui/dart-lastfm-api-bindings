@@ -1,4 +1,12 @@
+import 'package:last_fm_api/src/api_client.dart';
+import 'package:last_fm_api/src/info/lists/top_tracks_list.dart';
+import 'package:last_fm_api/src/period.dart';
+
 class LastFM_User {
+  final LastFM_API_Client _client;
+
+  const LastFM_User(this._client);
+
   Future getFriends(String username, [bool recentTracks, int limit, int page]) {
     throw UnimplementedError();
   }
@@ -25,11 +33,13 @@ class LastFM_User {
     throw UnimplementedError();
   }
 
-  Future getTopAlbums(String username, [String period, int limit, int page]) {
+  Future getTopAlbums(String username,
+      [LastFM_Period period, int limit, int page]) {
     throw UnimplementedError();
   }
 
-  Future getTopArtists(String username, [String period, int limit, int page]) {
+  Future getTopArtists(String username,
+      [LastFM_Period period, int limit, int page]) {
     throw UnimplementedError();
   }
 
@@ -37,8 +47,19 @@ class LastFM_User {
     throw UnimplementedError();
   }
 
-  Future getTopTracks(String username, [String period, int limit, int page]) {
-    throw UnimplementedError();
+  Future<TopTracksList> getTopTracks(String username,
+      {LastFM_Period period, int limit, int page}) async {
+    assert(username != null && username.isNotEmpty);
+    assert(limit == null || limit >= 1);
+    assert(page == null || page >= 1);
+
+    return TopTracksList(
+        await _client.buildAndGet('user.getTopTracks', 'toptracks', {
+      'user': username,
+      'period': period?.toString(),
+      'limit': limit?.toString(),
+      'page': page?.toString()
+    }));
   }
 
   Future getWeeklyAlbumChart(String username, [String from, String to]) {

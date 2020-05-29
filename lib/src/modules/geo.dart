@@ -3,7 +3,7 @@ import 'package:last_fm_api/src/info/lists/geo/geo_top_artists_list.dart';
 import 'package:last_fm_api/src/info/lists/geo/geo_top_tracks_list.dart';
 
 class LastFM_Geo {
-  final APIClient _client;
+  final LastFM_API_Client _client;
 
   const LastFM_Geo(this._client);
 
@@ -13,16 +13,12 @@ class LastFM_Geo {
     assert(limit == null || limit > 0);
     assert(page == null || page > 0);
 
-    final methodString = r'geo.gettopartists';
-
-    return GeoTopArtistsList(await _client
-        .get(_client.buildUri(methodString, {
-          'country': country,
-          'limit': limit?.toString(),
-          'page': page?.toString()
-        }))
-        .then((response) =>
-            _client.assertOk(response, methodString, r'topartists')));
+    return GeoTopArtistsList(await _client.buildAndGet(
+        'geo.getTopArtists', 'topArtists', {
+      'country': country,
+      'limit': limit?.toString(),
+      'page': page?.toString()
+    }));
   }
 
   Future<GeoTopTracksList> getTopTracks(String country,
@@ -31,16 +27,12 @@ class LastFM_Geo {
     assert(limit == null || limit > 0);
     assert(page == null || page > 0);
 
-    final methodString = r'geo.gettoptracks';
-
-    return GeoTopTracksList(await _client
-        .get(_client.buildUri(methodString, {
-          'country': country,
-          'location': location,
-          'limit': limit?.toString(),
-          'page': page?.toString()
-        }))
-        .then(
-            (response) => _client.assertOk(response, methodString, 'tracks')));
+    return GeoTopTracksList(
+        await _client.buildAndGet('geo.getTopTracks', 'tracks', {
+      'country': country,
+      'location': location,
+      'limit': limit?.toString(),
+      'page': page?.toString()
+    }));
   }
 }

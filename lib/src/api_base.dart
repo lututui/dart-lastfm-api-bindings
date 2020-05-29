@@ -1,23 +1,33 @@
 import 'dart:convert';
 
 import 'package:last_fm_api/src/api_client.dart';
+import 'package:last_fm_api/src/modules/artist.dart';
 import 'package:last_fm_api/src/modules/chart.dart';
 import 'package:last_fm_api/src/modules/geo.dart';
+import 'package:last_fm_api/src/modules/tag.dart';
+import 'package:last_fm_api/src/modules/user.dart';
 
 class LastFM_API {
-  factory LastFM_API(String apiKey, [String userAgent]) {
-    final client = APIClient(apiKey, userAgent);
+  factory LastFM_API(String apiKey,
+      [String userAgent, Duration betweenRequestsDelay]) {
+    final client = LastFM_API_Client(apiKey, userAgent, betweenRequestsDelay);
 
     return LastFM_API._(
-      geo: LastFM_Geo(client),
+      artist: LastFM_Artist(client),
       chart: LastFM_Chart(client),
+      geo: LastFM_Geo(client),
+      tag: LastFM_Tag(client),
+      user: LastFM_User(client),
     );
   }
 
-  const LastFM_API._({this.geo, this.chart});
+  const LastFM_API._({this.artist, this.chart, this.geo, this.tag, this.user});
 
-  final LastFM_Geo geo;
+  final LastFM_Artist artist;
   final LastFM_Chart chart;
+  final LastFM_Geo geo;
+  final LastFM_Tag tag;
+  final LastFM_User user;
 
   static final Uri kRootApiUri = Uri.http(r'ws.audioscrobbler.com', '/2.0/');
 }

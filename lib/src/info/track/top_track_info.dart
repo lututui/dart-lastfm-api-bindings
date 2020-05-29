@@ -7,25 +7,25 @@ class TopTrackInfo extends TrackInfo {
   final API_Images trackImages;
 
   TopTrackInfo._(
-      this.trackImages,
-      String trackName,
-      String mbid,
-      String url,
-      bool streamable,
-      int listeners,
-      int playCount,
-      Duration duration,
-      BasicArtistInfo artistInfo,
-      ) : super(
-    trackName: trackName,
-    mbid: mbid.isEmpty ? null : mbid,
-    url: url,
-    streamable: streamable,
-    listeners: listeners,
-    duration: duration == Duration.zero ? null : duration,
-    trackArtist: artistInfo,
-    playCount: playCount,
-  );
+    this.trackImages,
+    String trackName,
+    String mbid,
+    String url,
+    bool streamable,
+    int listeners,
+    int playCount,
+    Duration duration,
+    BasicArtistInfo artistInfo,
+  ) : super(
+          trackName: trackName,
+          mbid: mbid?.isEmpty ?? true ? null : mbid,
+          url: url,
+          streamable: streamable,
+          listeners: listeners,
+          duration: duration == Duration.zero ? null : duration,
+          trackArtist: artistInfo,
+          playCount: playCount,
+        );
 
   factory TopTrackInfo(Map<String, dynamic> data) {
     return TopTrackInfo._(
@@ -34,9 +34,9 @@ class TopTrackInfo extends TrackInfo {
       data['mbid'],
       data['url'],
       parseStreamable(data['streamable']),
-      int.parse(data['listeners']),
-      int.parse(data['playcount']),
-      Duration(seconds: int.parse(data['duration'])),
+      int.parse(data['listeners'] ?? '0'),
+      int.parse(data['playcount'] ?? '0'),
+      Duration(seconds: int.parse(data['duration'] ?? '0')),
       BasicArtistInfo(data['artist']),
     );
   }
