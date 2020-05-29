@@ -1,26 +1,30 @@
 import 'package:last_fm_api/last_fm_api.dart';
 import 'package:last_fm_api/src/info/artist/basic_artist_info.dart';
 import 'package:last_fm_api/src/info/image.dart';
+import 'package:last_fm_api/src/info/track/track_info.dart';
 
-class TopTrackInfo {
+class TopTrackInfo extends TrackInfo {
   final API_Images trackImages;
-  final String trackName;
-  final String mbid;
-  final String url;
-  final bool streamable;
-  final int listeners;
-  final Duration duration;
-  final BasicArtistInfo trackArtist;
 
   TopTrackInfo._(
-    this.trackImages,
-    this.trackName,
-    this.mbid,
-    this.url,
-    this.streamable,
-    this.listeners,
-    this.duration,
-    this.trackArtist,
+      this.trackImages,
+      String trackName,
+      String mbid,
+      String url,
+      bool streamable,
+      int listeners,
+      int playCount,
+      Duration duration,
+      BasicArtistInfo artistInfo,
+      ) : super(
+    trackName: trackName,
+    mbid: mbid.isEmpty ? null : mbid,
+    url: url,
+    streamable: streamable,
+    listeners: listeners,
+    duration: duration == Duration.zero ? null : duration,
+    trackArtist: artistInfo,
+    playCount: playCount,
   );
 
   factory TopTrackInfo(Map<String, dynamic> data) {
@@ -31,14 +35,9 @@ class TopTrackInfo {
       data['url'],
       parseStreamable(data['streamable']),
       int.parse(data['listeners']),
+      int.parse(data['playcount']),
       Duration(seconds: int.parse(data['duration'])),
       BasicArtistInfo(data['artist']),
     );
-  }
-
-  @override
-  String toString() {
-    return 'TopTrackInfo($trackName, ${trackArtist.artistName}, '
-        '${listeners ?? 0})';
   }
 }

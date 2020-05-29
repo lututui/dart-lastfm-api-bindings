@@ -1,6 +1,6 @@
 import 'package:last_fm_api/src/info/image.dart';
 import 'package:last_fm_api/src/info/tag_info.dart';
-import 'package:last_fm_api/src/info/track_info.dart';
+import 'package:last_fm_api/src/info/track/track_info.dart';
 
 class LastFM_AlbumInfo {
   final String albumName;
@@ -13,7 +13,7 @@ class LastFM_AlbumInfo {
   final int listeners;
   final int playCount;
   final List<TagInfo> tags;
-  final List<LastFM_TrackInfo> tracks;
+  final List<TrackInfo> tracks;
 
   LastFM_AlbumInfo(
     this.albumName,

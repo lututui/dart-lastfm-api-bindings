@@ -2,7 +2,7 @@ import 'package:last_fm_api/src/info/album_info.dart';
 import 'package:last_fm_api/src/info/artist/artist_info.dart';
 import 'package:last_fm_api/src/info/tag_info.dart';
 
-class LastFM_TrackInfo {
+class TrackInfo {
   final String trackId;
   final String trackName;
   final String mbid;
@@ -18,19 +18,23 @@ class LastFM_TrackInfo {
   final String summary;
   final String content;
 
-  LastFM_TrackInfo(
-      this.trackId,
-      this.trackName,
-      this.mbid,
-      this.url,
-      this.duration,
-      this.streamable,
-      this.listeners,
-      this.playCount,
-      this.trackArtist,
-      this.trackAlbum,
-      this.trackTags,
-      this.published,
-      this.summary,
-      this.content);
+  TrackInfo({
+    this.trackId,
+    this.trackName,
+    this.mbid,
+    this.url,
+    this.duration,
+    this.streamable,
+    this.listeners,
+    this.playCount,
+    this.trackArtist,
+    this.trackAlbum,
+    this.trackTags,
+    this.published,
+    this.summary,
+    this.content,
+  });
+
+  @override
+  String toString() => 'TrackInfo($trackName, ${trackArtist.artistName})';
 }
