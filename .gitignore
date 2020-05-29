@@ -12,6 +12,9 @@ build/
 # Directory created by dartdoc
 doc/api/
 
+# Other
+secret.yaml
+
 # Created by https://www.gitignore.io/api/intellij
 # Edit at https://www.gitignore.io/?templates=intellij
 
