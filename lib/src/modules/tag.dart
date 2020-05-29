@@ -1,4 +1,5 @@
 import 'package:last_fm_api/src/api_client.dart';
+import 'package:last_fm_api/src/info/lists/top_albums_list.dart';
 import 'package:last_fm_api/src/info/lists/top_tracks_list.dart';
 
 class LastFM_Tag {
@@ -14,8 +15,18 @@ class LastFM_Tag {
     throw UnimplementedError();
   }
 
-  Future getTopAlbums(String tagName, [int limit, int page]) {
-    throw UnimplementedError();
+  Future<TopAlbumsList> getTopAlbums(String tagName,
+      {int limit, int page}) async {
+    assert(tagName != null && tagName.isNotEmpty);
+    assert(limit == null || limit >= 1);
+    assert(page == null || page >= 1);
+
+    return TopAlbumsList(await _client.buildAndGet(
+        'tag.getTopAlbums', 'albums', {
+      'tag': tagName,
+      'limit': limit?.toString(),
+      'page': page?.toString()
+    }));
   }
 
   Future getTopArtists(String tagName, [int limit, int page]) {
@@ -26,7 +37,8 @@ class LastFM_Tag {
     throw UnimplementedError();
   }
 
-  Future getTopTracks(String tagName, {int limit, int page}) async {
+  Future<TopTracksList> getTopTracks(String tagName,
+      {int limit, int page}) async {
     assert(tagName != null && tagName.isNotEmpty);
     assert(limit == null || limit >= 1);
     assert(page == null || page >= 1);

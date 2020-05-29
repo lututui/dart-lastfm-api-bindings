@@ -1,4 +1,5 @@
 import 'package:last_fm_api/src/api_client.dart';
+import 'package:last_fm_api/src/info/lists/top_albums_list.dart';
 import 'package:last_fm_api/src/info/lists/top_tracks_list.dart';
 
 class LastFM_Artist {
@@ -43,14 +44,20 @@ class LastFM_Artist {
     throw UnimplementedError();
   }
 
-  Future getTopAlbums(
-    String artistName, [
-    String mbid,
-    bool autocorrect,
-    int page,
-    int limit,
-  ]) {
-    throw UnimplementedError();
+  Future<TopAlbumsList> getTopAlbums(String artistName,
+      {String mbid, bool autocorrect, int page, int limit}) async {
+    assert(artistName != null || (mbid != null && mbid.isNotEmpty));
+    assert(page == null || page >= 1);
+    assert(limit == null || limit >= 1);
+
+    return TopAlbumsList(
+        await _client.buildAndGet('artist.getTopAlbums', 'topAlbums', {
+      'artist': artistName,
+      'mbid': mbid,
+      'autocorrect': autocorrect ?? false ? '1' : '0',
+      'page': page?.toString(),
+      'limit': limit?.toString()
+    }));
   }
 
   Future getTopTags(String artistName, [String mbid, bool autocorrect]) {

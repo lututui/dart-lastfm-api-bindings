@@ -1,4 +1,4 @@
-import 'package:last_fm_api/src/info/album_info.dart';
+import 'package:last_fm_api/src/info/album/album_info.dart';
 import 'package:last_fm_api/src/info/artist/artist_info.dart';
 import 'package:last_fm_api/src/info/tag_info.dart';
 
@@ -12,7 +12,7 @@ class TrackInfo {
   final int listeners;
   final int playCount;
   final ArtistInfo trackArtist;
-  final LastFM_AlbumInfo trackAlbum;
+  final AlbumInfo trackAlbum;
   final List<TagInfo> trackTags;
   final String published;
   final String summary;

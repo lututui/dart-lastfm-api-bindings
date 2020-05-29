@@ -25,5 +25,7 @@ Future<void> main() async {
     lastfm.tag.getTopTracks('loquendo', limit: 4),
     lastfm.user
         .getTopTracks('tutstutui', period: LastFM_Period.trimester, limit: 1),
+    lastfm.artist.getTopAlbums('Lady Gaga', limit: 3),
+    lastfm.tag.getTopAlbums('indie', limit: 5),
   ]).then((value) => value.forEach(print));
 }

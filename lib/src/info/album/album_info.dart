@@ -2,7 +2,7 @@ import 'package:last_fm_api/src/info/image.dart';
 import 'package:last_fm_api/src/info/tag_info.dart';
 import 'package:last_fm_api/src/info/track/track_info.dart';
 
-class LastFM_AlbumInfo {
+class AlbumInfo {
   final String albumName;
   final String artistName;
   final String albumId;
@@ -15,19 +15,21 @@ class LastFM_AlbumInfo {
   final List<TagInfo> tags;
   final List<TrackInfo> tracks;
 
-  LastFM_AlbumInfo(
-    this.albumName,
-    this.artistName,
-    this.albumId,
-    this.mbid,
-    this.albumUrl,
-    this.releaseDate,
-    this.albumImages,
-    this.listeners,
-    this.playCount,
-    this.tags,
-    this.tracks,
-  ) {
-    throw UnimplementedError();
+  const AlbumInfo(
+      {this.albumName,
+      this.artistName,
+      this.albumId,
+      this.mbid,
+      this.albumUrl,
+      this.releaseDate,
+      this.albumImages,
+      this.listeners,
+      this.playCount,
+      this.tags,
+      this.tracks});
+
+  @override
+  String toString() {
+    return 'AlbumInfo($albumName, $artistName)';
   }
 }

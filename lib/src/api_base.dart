@@ -45,4 +45,10 @@ bool parseStreamable(streamable) {
       '${streamable.runtimeType}');
 }
 
-String decodeString(String target) => utf8.decode(target.codeUnits);
+String decodeString(String target) {
+  try {
+    return utf8.decode(target.codeUnits);
+  } on FormatException {
+    return target;
+  }
+}
