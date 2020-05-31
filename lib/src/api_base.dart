@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:last_fm_api/src/api_client.dart';
+import 'package:last_fm_api/src/modules/album.dart';
 import 'package:last_fm_api/src/modules/artist.dart';
 import 'package:last_fm_api/src/modules/chart.dart';
 import 'package:last_fm_api/src/modules/geo.dart';
@@ -13,16 +14,18 @@ class LastFM_API {
     final client = LastFM_API_Client(apiKey, userAgent, betweenRequestsDelay);
 
     return LastFM_API._(
+      album: LastFM_Album(client),
       artist: LastFM_Artist(client),
       chart: LastFM_Chart(client),
       geo: LastFM_Geo(client),
       tag: LastFM_Tag(client),
-      user: LastFM_User(client),
+      user: LastFM_User(client)
     );
   }
 
-  const LastFM_API._({this.artist, this.chart, this.geo, this.tag, this.user});
+  const LastFM_API._({this.album, this.artist, this.chart, this.geo, this.tag, this.user});
 
+  final LastFM_Album album;
   final LastFM_Artist artist;
   final LastFM_Chart chart;
   final LastFM_Geo geo;
@@ -43,6 +46,14 @@ bool parseStreamable(streamable) {
 
   throw FormatException('Streamable format not recognized: '
       '${streamable.runtimeType}');
+}
+
+int parseInt(maybeInt) {
+  if (maybeInt == null) return 0;
+  if (maybeInt is int) return maybeInt;
+  if (maybeInt is String) return int.parse(maybeInt);
+
+  throw FormatException();
 }
 
 String decodeString(String target) {

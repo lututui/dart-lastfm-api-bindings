@@ -29,14 +29,14 @@ class TopTrackInfo extends TrackInfo {
 
   factory TopTrackInfo(Map<String, dynamic> data) {
     return TopTrackInfo._(
-      API_Images((data['image'] as List).cast<Map<String, dynamic>>()),
+      API_Images(data['image']),
       decodeString(data['name']),
       data['mbid'],
       data['url'],
       parseStreamable(data['streamable']),
-      int.parse(data['listeners'] ?? '0'),
-      int.parse(data['playcount'] ?? '0'),
-      Duration(seconds: int.parse(data['duration'] ?? '0')),
+      parseInt(data['listeners']),
+      parseInt(data['playcount']),
+      Duration(seconds: parseInt(data['duration'])),
       BasicArtistInfo(data['artist']),
     );
   }

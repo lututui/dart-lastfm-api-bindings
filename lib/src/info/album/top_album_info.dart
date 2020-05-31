@@ -19,10 +19,10 @@ class TopAlbumInfo extends AlbumInfo {
   factory TopAlbumInfo(Map<String, dynamic> data) {
     return TopAlbumInfo._(
         decodeString(data['name']),
-        data['playcount'],
+        parseInt(data['playcount']),
         data['mbid'],
         data['url'],
         BasicArtistInfo(data['artist']),
-        API_Images((data['image'] as List).cast<Map<String, dynamic>>()));
+        API_Images(data['image']));
   }
 }

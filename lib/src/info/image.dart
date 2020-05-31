@@ -13,9 +13,11 @@ class API_Images {
     this.mega,
   );
 
-  factory API_Images(List<Map<String, dynamic>> data) {
+  factory API_Images(List<dynamic> data) {
+    final castedList = data.cast<Map<String, dynamic>>();
+
     final images = {
-      for (final entry in data)
+      for (final entry in castedList)
         entry['size']: _SizedImage(entry['size'], entry['#text'])
     };
 

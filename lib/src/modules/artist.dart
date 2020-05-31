@@ -1,6 +1,6 @@
 import 'package:last_fm_api/src/api_client.dart';
-import 'package:last_fm_api/src/info/lists/top_albums_list.dart';
-import 'package:last_fm_api/src/info/lists/top_tracks_list.dart';
+import 'package:last_fm_api/src/info/lists/top/top_albums_list.dart';
+import 'package:last_fm_api/src/info/lists/top/top_tracks_list.dart';
 
 class LastFM_Artist {
   final LastFM_API_Client _client;
@@ -44,44 +44,52 @@ class LastFM_Artist {
     throw UnimplementedError();
   }
 
-  Future<TopAlbumsList> getTopAlbums(String artistName,
-      {String mbid, bool autocorrect, int page, int limit}) async {
+  Future<TopAlbumsList> getTopAlbums(
+    String artistName, {
+    String mbid,
+    bool autocorrect,
+    int page,
+    int limit,
+  }) async {
     assert(artistName != null || (mbid != null && mbid.isNotEmpty));
     assert(page == null || page >= 1);
     assert(limit == null || limit >= 1);
 
-    return TopAlbumsList(
-        await _client.buildAndGet('artist.getTopAlbums', 'topAlbums', {
-      'artist': artistName,
-      'mbid': mbid,
-      'autocorrect': autocorrect ?? false ? '1' : '0',
-      'page': page?.toString(),
-      'limit': limit?.toString()
-    }));
+    return TopAlbumsList.artist(
+      await _client.buildAndGet('artist.getTopAlbums', 'topAlbums', {
+        'artist': artistName,
+        'mbid': mbid,
+        'autocorrect': autocorrect ?? false ? '1' : '0',
+        'page': page?.toString(),
+        'limit': limit?.toString(),
+      }),
+    );
   }
 
   Future getTopTags(String artistName, [String mbid, bool autocorrect]) {
     throw UnimplementedError();
   }
 
-  Future<TopTracksList> getTopTracks(
-      {String artistName,
-      String mbid,
-      bool autocorrect,
-      int page,
-      int limit}) async {
+  Future<TopTracksList> getTopTracks({
+    String artistName,
+    String mbid,
+    bool autocorrect,
+    int page,
+    int limit,
+  }) async {
     assert(artistName != null || (mbid != null && mbid.isNotEmpty));
     assert(page == null || page >= 1);
     assert(limit == null || limit >= 1);
 
-    return TopTracksList(
-        await _client.buildAndGet('artist.getTopTracks', 'topTracks', {
-      'artist': artistName,
-      'mbid': mbid,
-      'autocorrect': autocorrect ?? false ? '1' : '0',
-      'page': page?.toString(),
-      'limit': limit?.toString()
-    }));
+    return TopTracksList.artist(
+      await _client.buildAndGet('artist.getTopTracks', 'topTracks', {
+        'artist': artistName,
+        'mbid': mbid,
+        'autocorrect': autocorrect ?? false ? '1' : '0',
+        'page': page?.toString(),
+        'limit': limit?.toString(),
+      }),
+    );
   }
 
   /// Requires auth

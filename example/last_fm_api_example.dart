@@ -27,5 +27,8 @@ Future<void> main() async {
         .getTopTracks('tutstutui', period: LastFM_Period.trimester, limit: 1),
     lastfm.artist.getTopAlbums('Lady Gaga', limit: 3),
     lastfm.tag.getTopAlbums('indie', limit: 5),
+    lastfm.user
+        .getTopAlbums('tutstutui', period: LastFM_Period.semester, limit: 2),
+    lastfm.album.getInfo('A Perfect Circle', 'Eat The Elephant')
   ]).then((value) => value.forEach(print));
 }

@@ -24,12 +24,12 @@ class TopArtistInfo extends ArtistInfo {
   factory TopArtistInfo(Map<String, dynamic> data) {
     return TopArtistInfo._(
       decodeString(data['name']),
-      int.parse(data['playcount'] ?? '0'),
-      int.parse(data['listeners']),
+      parseInt(data['playcount']),
+      parseInt(data['listeners']),
       data['mbid'],
       data['artistUrl'],
       parseStreamable(data['streamable']),
-      API_Images((data['image'] as List).cast<Map<String, dynamic>>()),
+      API_Images(data['image']),
     );
   }
 

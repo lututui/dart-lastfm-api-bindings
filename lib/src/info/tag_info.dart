@@ -10,7 +10,7 @@ class TagInfo {
   final String summary;
   final String content;
 
-  TagInfo._(
+  const TagInfo({
     this.tagName,
     this.tagUrl,
     this.tagReach,
@@ -19,18 +19,20 @@ class TagInfo {
     this.published,
     this.summary,
     this.content,
-  );
+  });
 
-  factory TagInfo(Map<String, dynamic> data) {
-    return TagInfo._(
-      decodeString(data['name']),
-      data['url'],
-      int.parse(data['reach']),
-      int.parse(data['taggings']),
-      parseStreamable(data['streamable']),
-      data['wiki']['published'],
-      data['wiki']['summary'],
-      data['wiki']['content'],
+  factory TagInfo.parse(Map<String, dynamic> data) {
+    final wiki = data['wiki'] ?? const {};
+
+    return TagInfo(
+      tagName: decodeString(data['name']),
+      tagUrl: data['url'],
+      tagReach: parseInt(data['reach']),
+      taggings: parseInt(data['taggings']),
+      streamable: parseStreamable(data['streamable']),
+      published: wiki['published'],
+      summary: wiki['summary'],
+      content: wiki['content'],
     );
   }
 
