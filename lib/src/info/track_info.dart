@@ -1,7 +1,6 @@
 import 'package:last_fm_api/src/api_base.dart';
-import 'package:last_fm_api/src/info/album/album_info.dart';
-import 'package:last_fm_api/src/info/artist/artist_info.dart';
-import 'package:last_fm_api/src/info/artist/basic_artist_info.dart';
+import 'package:last_fm_api/src/info/album_info.dart';
+import 'package:last_fm_api/src/info/artist_info.dart';
 import 'package:last_fm_api/src/lists/tags_list.dart';
 
 class TrackInfo {
@@ -20,9 +19,9 @@ class TrackInfo {
   final String summary;
   final String content;
 
-  TrackInfo({
+  TrackInfo(
+    this.trackName, {
     this.trackId,
-    this.trackName,
     this.mbid,
     this.url,
     this.duration,
@@ -35,23 +34,23 @@ class TrackInfo {
     this.published,
     this.summary,
     this.content,
-  });
+  }) : assert(trackName != null && trackName.isNotEmpty);
 
   factory TrackInfo.parse(Map<String, dynamic> data) {
     final wiki = data['wiki'] ?? const {};
 
     return TrackInfo(
+      decodeString(data['name']),
       trackId: data['id'],
-      trackName: decodeString(data['name']),
       mbid: data['mbid'],
       url: data['url'],
       duration: Duration(seconds: parseInt(data['duration'])),
       streamable: parseStreamable(data['streamable']),
       listeners: parseInt(data['listeners']),
       playCount: parseInt(data['playcount']),
-      trackArtist: BasicArtistInfo.parse(data['artist']),
-      trackAlbum: data['album'] != null ? AlbumInfo.parse(data['album']) : null,
-      trackTags: data['tags'] != null ? TagsList(data['tags']) : null,
+      trackArtist: ArtistInfo.parse(data['artist']),
+      trackAlbum: AlbumInfo.parse(data['album']),
+      trackTags: TagsList.parse(data['tags']),
       published: wiki['published'],
       summary: wiki['summary'],
       content: wiki['content'],

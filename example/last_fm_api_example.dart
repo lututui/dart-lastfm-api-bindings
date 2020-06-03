@@ -11,54 +11,76 @@ Future<void> main() async {
 
   final lastfm = LastFM_API(secret['api_key']);
 
-  await Future.wait([
-    lastfm.geo.getTopArtists('Brazil', limit: 5),
-    lastfm.geo.getTopTracks('United States', limit: 1),
-    lastfm.chart.getTopArtists(limit: 2),
-    lastfm.chart.getTopTags(limit: 2),
-    lastfm.chart.getTopTracks(limit: 2),
-    lastfm.artist.getTopTracks(
-      artistName: 'Beyoncé',
-      autocorrect: true,
-      limit: 2,
-    ),
-    lastfm.artist.getTopTracks(
-      mbid: 'f59c5520-5f46-4d2c-b2c4-822eabf53419',
-      limit: 3,
-    ),
-    lastfm.tag.getTopTracks('loquendo', limit: 4),
-    lastfm.user.getTopTracks(
-      'tutstutui',
-      period: LastFM_Period.trimester,
-      limit: 1,
-    ),
-    lastfm.artist.getTopAlbums('Lady Gaga', limit: 3),
-    lastfm.tag.getTopAlbums('indie', limit: 5),
-    lastfm.user.getTopAlbums(
-      'tutstutui',
-      period: LastFM_Period.semester,
-      limit: 2,
-    ),
+  final album = await Future.wait([
     lastfm.album.getInfo('A Perfect Circle', 'Eat The Elephant'),
+  ]);
+
+  final artist = await Future.wait([
+    lastfm.artist.getTopTracks(artistName: 'Beyoncé', autocorrect: true),
+    lastfm.artist.getTopTracks(mbid: 'f59c5520-5f46-4d2c-b2c4-822eabf53419'),
+    lastfm.artist.getTopAlbums('Lady Gaga'),
+  ]).then((list) => list.map((e) => e.toString()).toList());
+
+  //final auth = [];
+
+  final chart = await Future.wait([
+    lastfm.chart.getTopArtists(),
+    lastfm.chart.getTopTags(),
+    lastfm.chart.getTopTracks(),
+  ]).then((list) => list.map((e) => e.toString()).toList());
+
+  final geo = await Future.wait([
+    lastfm.geo.getTopArtists('Brazil'),
+    lastfm.geo.getTopTracks('United States'),
+  ]).then((list) => list.map((e) => e.toString()).toList());
+
+  //final library = [];
+  final tag = await Future.wait([
+    lastfm.tag.getTopTracks('loquendo'),
+    lastfm.tag.getTopAlbums('indie'),
+  ]);
+  //final track = [];
+  final user = await Future.wait([
     lastfm.user.getInfo('tutstutui'),
     lastfm.user.getFriends('tutstutui'),
     lastfm.user.getLovedTracks('tutstutui'),
     lastfm.user.getPersonalTags('tutstutui', 'lg6', TaggingType.album),
-    lastfm.user.getRecentTracks('tutstutui', limit: 3),
+    lastfm.user.getRecentTracks('tutstutui'),
     lastfm.user.getRecentTracks(
       'tutstutui',
-      limit: 3,
-      to: DateTime.now().subtract(Duration(days: 5)),
+      to: DateTime.now().subtract(const Duration(days: 5)),
     ),
-    lastfm.user.getTopArtists(
-      'tutstutui',
-      period: LastFM_Period.week,
-      limit: 5,
-    ),
+    lastfm.user.getTopTracks('tutstutui', period: LastFM_Period.trimester),
+    lastfm.user.getTopAlbums('tutstutui', period: LastFM_Period.semester),
+    lastfm.user.getTopArtists('tutstutui', period: LastFM_Period.week),
     lastfm.user.getTopTags('tutstutui'),
     lastfm.user.getWeeklyChartList('tutstutui'),
     lastfm.user.getWeeklyAlbumChart('tutstutui'),
     lastfm.user.getWeeklyArtistChart('tutstutui'),
     lastfm.user.getWeeklyTrackChart('tutstutui'),
-  ]).then((value) => value.forEach(print));
+  ]);
+
+  print('====ALBUM====');
+  album.forEach(print);
+  print('============');
+
+  print('===ARTIST===');
+  artist.forEach(print);
+  print('============');
+
+  print('===CHART===');
+  chart.forEach(print);
+  print('===========');
+
+  print('====GEO====');
+  geo.forEach(print);
+  print('===========');
+
+  print('====TAG====');
+  tag.forEach(print);
+  print('===========');
+
+  print('====USER====');
+  user.forEach(print);
+  print('============');
 }

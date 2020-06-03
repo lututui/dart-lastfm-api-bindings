@@ -1,5 +1,6 @@
 import 'package:last_fm_api/src/api_client.dart';
-import 'package:last_fm_api/src/info/album/album_info.dart';
+
+import 'file:///C:/Users/LuizArthurChagasOliv/Documents/GitHub/last_fm_api/lib/src/info/album_info.dart';
 
 class LastFM_Album {
   final LastFM_API_Client _client;
@@ -18,14 +19,18 @@ class LastFM_Album {
       String lang}) async {
     assert((artistName != null && albumName != null) || mbid != null);
 
-    return AlbumInfo.parse(await _client.buildAndGet('album.getInfo', 'album', {
-      'artist': artistName,
-      'album': albumName,
-      'mbid': mbid,
-      'autocorrect': autocorrect ?? false ? '1' : '0',
-      'username': usernamePlayCount,
-      'lang': lang,
-    }));
+    return AlbumInfo.parse(await _client.buildAndGet(
+      'album.getInfo',
+      'album',
+      {
+        'artist': artistName,
+        'album': albumName,
+        'mbid': mbid,
+        'autocorrect': autocorrect ?? false ? '1' : '0',
+        'username': usernamePlayCount,
+        'lang': lang,
+      },
+    ));
   }
 
   Future getTags(

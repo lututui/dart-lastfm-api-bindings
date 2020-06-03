@@ -1,18 +1,18 @@
 import 'package:last_fm_api/src/api_client.dart';
-import 'package:last_fm_api/src/lists/top/top_artists_list.dart';
-import 'package:last_fm_api/src/lists/top/top_tags_list.dart';
-import 'package:last_fm_api/src/lists/top/top_tracks_list.dart';
+import 'package:last_fm_api/src/lists/artists_list.dart';
+import 'package:last_fm_api/src/lists/tags_list.dart';
+import 'package:last_fm_api/src/lists/tracks_list.dart';
 
 class LastFM_Chart {
   final LastFM_API_Client _client;
 
   const LastFM_Chart(this._client);
 
-  Future<TopArtistsList> getTopArtists({int page, int limit}) async {
+  Future<ArtistsList> getTopArtists({int page, int limit}) async {
     assert(page == null || page >= 1);
     assert(limit == null || limit >= 1);
 
-    return TopArtistsList.chart(
+    return ArtistsList(
       await _client.buildAndGet('chart.getTopArtists', 'artists', {
         'page': page?.toString(),
         'limit': limit?.toString(),
@@ -20,11 +20,11 @@ class LastFM_Chart {
     );
   }
 
-  Future<TopTagsList> getTopTags({int page, int limit}) async {
+  Future<TagsList> getTopTags({int page, int limit}) async {
     assert(page == null || page >= 1);
     assert(limit == null || limit >= 1);
 
-    return TopTagsList.chart(
+    return TagsList.parse(
       await _client.buildAndGet('chart.getTopTags', 'tags', {
         'page': page?.toString(),
         'limit': limit?.toString(),
@@ -32,11 +32,11 @@ class LastFM_Chart {
     );
   }
 
-  Future<TopTracksList> getTopTracks({int page, int limit}) async {
+  Future<TracksList> getTopTracks({int page, int limit}) async {
     assert(page == null || page >= 1);
     assert(limit == null || limit >= 1);
 
-    return TopTracksList.chart(
+    return TracksList.parse(
       await _client.buildAndGet('chart.getTopTracks', 'tracks', {
         'page': page?.toString(),
         'limit': limit?.toString(),

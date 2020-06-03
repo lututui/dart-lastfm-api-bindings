@@ -1,6 +1,6 @@
 import 'package:last_fm_api/src/api_client.dart';
-import 'package:last_fm_api/src/lists/top/top_albums_list.dart';
-import 'package:last_fm_api/src/lists/top/top_tracks_list.dart';
+import 'package:last_fm_api/src/lists/albums_list.dart';
+import 'package:last_fm_api/src/lists/tracks_list.dart';
 
 class LastFM_Artist {
   final LastFM_API_Client _client;
@@ -44,7 +44,7 @@ class LastFM_Artist {
     throw UnimplementedError();
   }
 
-  Future<TopAlbumsList> getTopAlbums(
+  Future<AlbumsList> getTopAlbums(
     String artistName, {
     String mbid,
     bool autocorrect,
@@ -55,7 +55,7 @@ class LastFM_Artist {
     assert(page == null || page >= 1);
     assert(limit == null || limit >= 1);
 
-    return TopAlbumsList.artist(
+    return AlbumsList(
       await _client.buildAndGet('artist.getTopAlbums', 'topAlbums', {
         'artist': artistName,
         'mbid': mbid,
@@ -70,7 +70,7 @@ class LastFM_Artist {
     throw UnimplementedError();
   }
 
-  Future<TopTracksList> getTopTracks({
+  Future<TracksList> getTopTracks({
     String artistName,
     String mbid,
     bool autocorrect,
@@ -81,7 +81,7 @@ class LastFM_Artist {
     assert(page == null || page >= 1);
     assert(limit == null || limit >= 1);
 
-    return TopTracksList.artist(
+    return TracksList.parse(
       await _client.buildAndGet('artist.getTopTracks', 'topTracks', {
         'artist': artistName,
         'mbid': mbid,

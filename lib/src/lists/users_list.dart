@@ -1,12 +1,12 @@
 import 'package:last_fm_api/src/info/user_info.dart';
-import 'package:last_fm_api/src/lists/base_top_list.dart';
+import 'package:last_fm_api/src/lists/base_list.dart';
+import 'package:last_fm_api/src/lists/list_metadata.dart';
 
-class UsersList extends BaseTopList<UserInfo> {
+class UsersList extends BaseList<UserInfo> {
   UsersList(Map<String, dynamic> data)
       : super(
-          data['@attr'],
           (data['user'] as List).cast<Map<String, dynamic>>(),
           (element) => UserInfo.parse(element),
-          ['friends'],
+          ListMetadata.parse(data['@attr']),
         );
 }

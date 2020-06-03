@@ -1,13 +1,16 @@
 import 'dart:collection';
 
+import 'package:last_fm_api/src/lists/list_metadata.dart';
 import 'package:meta/meta.dart';
 
 abstract class BaseList<T> implements Iterable<T> {
   final List<T> elements;
+  final ListMetadata metadata;
 
   BaseList(
     List<Map<String, dynamic>> listData,
     T Function(dynamic element) listElementBuilder,
+    this.metadata,
   )   : assert(listData != null),
         assert(listElementBuilder != null),
         elements = [for (final entry in listData) listElementBuilder(entry)];
@@ -23,7 +26,10 @@ abstract class BaseList<T> implements Iterable<T> {
   @override
   @nonVirtual
   String toString() {
-    return '$runtimeType(${toFullString()})';
+    return '$runtimeType(${[
+      metadata?.toString(),
+      toFullString()
+    ].where((element) => element != null && element.isNotEmpty).join(', ')})';
   }
 
   @override

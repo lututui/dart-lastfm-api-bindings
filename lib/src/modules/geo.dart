@@ -1,13 +1,13 @@
 import 'package:last_fm_api/src/api_client.dart';
-import 'package:last_fm_api/src/lists/top/top_artists_list.dart';
-import 'package:last_fm_api/src/lists/top/top_tracks_list.dart';
+import 'package:last_fm_api/src/lists/artists_list.dart';
+import 'package:last_fm_api/src/lists/tracks_list.dart';
 
 class LastFM_Geo {
   final LastFM_API_Client _client;
 
   const LastFM_Geo(this._client);
 
-  Future<TopArtistsList> getTopArtists(
+  Future<ArtistsList> getTopArtists(
     String country, {
     int limit,
     int page,
@@ -16,7 +16,7 @@ class LastFM_Geo {
     assert(limit == null || limit > 0);
     assert(page == null || page > 0);
 
-    return TopArtistsList.geo(
+    return ArtistsList(
       await _client.buildAndGet('geo.getTopArtists', 'topArtists', {
         'country': country,
         'limit': limit?.toString(),
@@ -25,7 +25,7 @@ class LastFM_Geo {
     );
   }
 
-  Future<TopTracksList> getTopTracks(
+  Future<TracksList> getTopTracks(
     String country, {
     String location,
     int limit,
@@ -35,7 +35,7 @@ class LastFM_Geo {
     assert(limit == null || limit > 0);
     assert(page == null || page > 0);
 
-    return TopTracksList.geo(
+    return TracksList.parse(
       await _client.buildAndGet('geo.getTopTracks', 'tracks', {
         'country': country,
         'location': location,

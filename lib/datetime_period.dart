@@ -9,11 +9,15 @@ class DateTimePeriod {
         assert(begin.isBefore(end)),
         duration = end.difference(begin);
 
-  DateTimePeriod.parse(int begin, int end)
-      : this(
-          DateTime.fromMillisecondsSinceEpoch(begin * 1000, isUtc: true),
-          DateTime.fromMillisecondsSinceEpoch(end * 1000, isUtc: true),
-        );
+  factory DateTimePeriod.parse(int begin, int end) {
+    if (begin == null || end == null) return null;
+    if (begin == 0 && end == 0) return null;
+
+    return DateTimePeriod(
+      DateTime.fromMillisecondsSinceEpoch(begin * 1000, isUtc: true),
+      DateTime.fromMillisecondsSinceEpoch(end * 1000, isUtc: true),
+    );
+  }
 
   @override
   String toString() {

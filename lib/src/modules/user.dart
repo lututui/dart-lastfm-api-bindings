@@ -3,11 +3,11 @@ import 'package:last_fm_api/src/api_base.dart';
 import 'package:last_fm_api/src/api_client.dart';
 import 'package:last_fm_api/src/exception.dart';
 import 'package:last_fm_api/src/info/user_info.dart';
-import 'package:last_fm_api/src/lists/base_top_list.dart';
-import 'package:last_fm_api/src/lists/top/top_albums_list.dart';
-import 'package:last_fm_api/src/lists/top/top_artists_list.dart';
-import 'package:last_fm_api/src/lists/top/top_tags_list.dart';
-import 'package:last_fm_api/src/lists/top/top_tracks_list.dart';
+import 'package:last_fm_api/src/lists/albums_list.dart';
+import 'package:last_fm_api/src/lists/artists_list.dart';
+import 'package:last_fm_api/src/lists/base_list.dart';
+import 'package:last_fm_api/src/lists/tags_list.dart';
+import 'package:last_fm_api/src/lists/tracks_list.dart';
 import 'package:last_fm_api/src/lists/users_list.dart';
 import 'package:last_fm_api/src/period.dart';
 import 'package:last_fm_api/src/tagging_type.dart';
@@ -47,7 +47,7 @@ class LastFM_User {
     );
   }
 
-  Future<TopTracksList> getLovedTracks(
+  Future<TracksList> getLovedTracks(
     String username, {
     int limit,
     int page,
@@ -56,14 +56,20 @@ class LastFM_User {
     assert(limit == null || limit >= 1);
     assert(page == null || page >= 1);
 
-    return TopTracksList.user(await _client.buildAndGet(
-      'user.getLovedTracks',
-      'lovedTracks',
-      {'user': username, 'limit': limit?.toString(), 'page': page?.toString()},
-    ));
+    return TracksList.parse(
+      await _client.buildAndGet(
+        'user.getLovedTracks',
+        'lovedTracks',
+        {
+          'user': username,
+          'limit': limit?.toString(),
+          'page': page?.toString()
+        },
+      ),
+    );
   }
 
-  Future<BaseTopList> getPersonalTags(
+  Future<BaseList> getPersonalTags(
     String username,
     String tag,
     TaggingType taggingType, {
@@ -89,30 +95,27 @@ class LastFM_User {
     if (taggingType == TaggingType.album) {
       ApiException.checkMissingKey(apiMethod, 'albums', queryResult);
 
-      return TopAlbumsList(
+      return AlbumsList(
         {...queryResult['albums'], '@attr': queryResult['@attr']},
-        ['user', 'tag'],
       );
     } else if (taggingType == TaggingType.artist) {
       ApiException.checkMissingKey(apiMethod, 'artists', queryResult);
 
-      return TopArtistsList(
+      return ArtistsList(
         {...queryResult['artists'], '@attr': queryResult['@attr']},
-        ['user', 'tag'],
       );
     } else if (taggingType == TaggingType.track) {
       ApiException.checkMissingKey(apiMethod, 'tracks', queryResult);
 
-      return TopTracksList(
+      return TracksList.parse(
         {...queryResult['tracks'], '@attr': queryResult['@attr']},
-        ['user', 'tag'],
       );
     }
 
     throw UnsupportedError('Unsupported tagging type: $taggingType');
   }
 
-  Future<TopTracksList> getRecentTracks(
+  Future<TracksList> getRecentTracks(
     String username, {
     int limit,
     int page,
@@ -125,7 +128,7 @@ class LastFM_User {
     assert(page == null || page >= 1);
     assert(from == null || to == null || from.isBefore(to));
 
-    return TopTracksList.user(await _client.buildAndGet(
+    return TracksList.parse(await _client.buildAndGet(
       'user.getRecentTracks',
       'recentTracks',
       {
@@ -139,7 +142,7 @@ class LastFM_User {
     ));
   }
 
-  Future<TopAlbumsList> getTopAlbums(
+  Future<AlbumsList> getTopAlbums(
     String username, {
     LastFM_Period period,
     int limit,
@@ -149,7 +152,7 @@ class LastFM_User {
     assert(limit == null || limit >= 1);
     assert(page == null || page >= 1);
 
-    return TopAlbumsList.user(
+    return AlbumsList(
       await _client.buildAndGet('user.getTopAlbums', 'topAlbums', {
         'user': username,
         'period': period?.toString(),
@@ -159,7 +162,7 @@ class LastFM_User {
     );
   }
 
-  Future<TopArtistsList> getTopArtists(
+  Future<ArtistsList> getTopArtists(
     String username, {
     LastFM_Period period,
     int limit,
@@ -169,7 +172,7 @@ class LastFM_User {
     assert(limit == null || limit >= 1);
     assert(page == null || page >= 1);
 
-    return TopArtistsList.user(await _client.buildAndGet(
+    return ArtistsList(await _client.buildAndGet(
       'user.getTopArtists',
       'topArtists',
       {
@@ -181,18 +184,18 @@ class LastFM_User {
     ));
   }
 
-  Future<TopTagsList> getTopTags(String username, {int limit}) async {
+  Future<TagsList> getTopTags(String username, {int limit}) async {
     assert(username != null && username.isNotEmpty);
     assert(limit == null || limit >= 1);
 
-    return TopTagsList.user(await _client.buildAndGet(
+    return TagsList.parse(await _client.buildAndGet(
       'user.getTopTags',
       'topTags',
       {'user': username, 'limit': limit?.toString()},
     ));
   }
 
-  Future<TopTracksList> getTopTracks(
+  Future<TracksList> getTopTracks(
     String username, {
     LastFM_Period period,
     int limit,
@@ -202,7 +205,7 @@ class LastFM_User {
     assert(limit == null || limit >= 1);
     assert(page == null || page >= 1);
 
-    return TopTracksList.user(
+    return TracksList.parse(
       await _client.buildAndGet('user.getTopTracks', 'topTracks', {
         'user': username,
         'period': period?.toString(),
@@ -212,7 +215,7 @@ class LastFM_User {
     );
   }
 
-  Future<TopAlbumsList> getWeeklyAlbumChart(
+  Future<AlbumsList> getWeeklyAlbumChart(
     String username, {
     DateTime from,
     DateTime to,
@@ -221,7 +224,7 @@ class LastFM_User {
     assert(username != null && username.isNotEmpty);
     assert((from == null && to == null) || period == null);
 
-    return TopAlbumsList.userChart(await _client.buildAndGet(
+    return AlbumsList(await _client.buildAndGet(
       'user.getWeeklyAlbumChart',
       'weeklyAlbumChart',
       {
@@ -234,7 +237,7 @@ class LastFM_User {
     ));
   }
 
-  Future<TopArtistsList> getWeeklyArtistChart(
+  Future<ArtistsList> getWeeklyArtistChart(
     String username, {
     DateTime from,
     DateTime to,
@@ -243,7 +246,7 @@ class LastFM_User {
     assert(username != null && username.isNotEmpty);
     assert((from == null && to == null) || period == null);
 
-    return TopArtistsList.userChart(await _client.buildAndGet(
+    return ArtistsList(await _client.buildAndGet(
       'user.getWeeklyArtistChart',
       'weeklyArtistChart',
       {
@@ -281,7 +284,7 @@ class LastFM_User {
     ];
   }
 
-  Future<TopTracksList> getWeeklyTrackChart(
+  Future<TracksList> getWeeklyTrackChart(
     String username, {
     DateTime from,
     DateTime to,
@@ -290,7 +293,7 @@ class LastFM_User {
     assert(username != null && username.isNotEmpty);
     assert((from == null && to == null) || period == null);
 
-    return TopTracksList.userChart(await _client.buildAndGet(
+    return TracksList.parse(await _client.buildAndGet(
       'user.getWeeklyTrackChart',
       'weeklyTrackChart',
       {

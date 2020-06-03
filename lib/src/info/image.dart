@@ -8,6 +8,8 @@ class ImageInfo {
   ImageInfo({this.small, this.medium, this.large, this.extralarge, this.mega});
 
   factory ImageInfo.parse(List<dynamic> data) {
+    if (data == null) return null;
+
     final castedList = data.cast<Map<String, dynamic>>();
 
     final images = {

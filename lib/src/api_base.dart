@@ -61,6 +61,9 @@ int parseInt(maybeInt) {
 }
 
 String decodeString(String target) {
+  if (target == null) return null;
+  if (target.isEmpty) return '';
+
   try {
     return utf8.decode(target.codeUnits);
   } on FormatException {
