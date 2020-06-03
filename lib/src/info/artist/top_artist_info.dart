@@ -1,4 +1,4 @@
-import 'package:last_fm_api/last_fm_api.dart';
+import 'package:last_fm_api/src/api_base.dart';
 import 'package:last_fm_api/src/info/artist/artist_info.dart';
 import 'package:last_fm_api/src/info/image.dart';
 
@@ -10,7 +10,7 @@ class TopArtistInfo extends ArtistInfo {
     String mbid,
     String artistUrl,
     bool streamable,
-    API_Images artistImages,
+    ImageInfo artistImages,
   ) : super(
           artistName: artistName,
           playCount: playCount,
@@ -29,12 +29,17 @@ class TopArtistInfo extends ArtistInfo {
       data['mbid'],
       data['artistUrl'],
       parseStreamable(data['streamable']),
-      API_Images(data['image']),
+      data['image'] != null ? ImageInfo.parse(data['image']) : null,
     );
   }
 
   @override
   String toString() {
-    return 'TopArtistInfo($artistName, $listeners, $playCount)';
+    return 'TopArtistInfo(${[
+      artistName,
+      [listeners, playCount]
+          .where((element) => element != null && element > 0)
+          .join(', ')
+    ].where((element) => element != null && element.isNotEmpty).join(', ')})';
   }
 }

@@ -1,39 +1,33 @@
-class API_Images {
-  final _SizedImage small;
-  final _SizedImage medium;
-  final _SizedImage large;
-  final _SizedImage extralarge;
-  final _SizedImage mega;
+class ImageInfo {
+  final SingleImageInfo small;
+  final SingleImageInfo medium;
+  final SingleImageInfo large;
+  final SingleImageInfo extralarge;
+  final SingleImageInfo mega;
 
-  API_Images._(
-    this.small,
-    this.medium,
-    this.large,
-    this.extralarge,
-    this.mega,
-  );
+  ImageInfo({this.small, this.medium, this.large, this.extralarge, this.mega});
 
-  factory API_Images(List<dynamic> data) {
+  factory ImageInfo.parse(List<dynamic> data) {
     final castedList = data.cast<Map<String, dynamic>>();
 
     final images = {
       for (final entry in castedList)
-        entry['size']: _SizedImage(entry['size'], entry['#text'])
+        entry['size']: SingleImageInfo(entry['size'], entry['#text'])
     };
 
-    return API_Images._(
-      images['small'],
-      images['medium'],
-      images['large'],
-      images['extralarge'],
-      images['mega'],
+    return ImageInfo(
+      small: images['small'],
+      medium: images['medium'],
+      large: images['large'],
+      extralarge: images['extralarge'],
+      mega: images['mega'],
     );
   }
 }
 
-class _SizedImage {
+class SingleImageInfo {
   final String sizeString;
   final String url;
 
-  _SizedImage(this.sizeString, this.url);
+  SingleImageInfo(this.sizeString, this.url);
 }

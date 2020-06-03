@@ -1,7 +1,8 @@
 import 'package:last_fm_api/src/api_base.dart';
 import 'package:last_fm_api/src/info/image.dart';
-import 'package:last_fm_api/src/info/lists/tags_list.dart';
-import 'package:last_fm_api/src/info/lists/track_list.dart';
+import 'package:last_fm_api/src/lists/tags_list.dart';
+import 'package:last_fm_api/src/lists/tracks_list.dart';
+
 
 class AlbumInfo {
   final String albumName;
@@ -10,11 +11,11 @@ class AlbumInfo {
   final String mbid;
   final String albumUrl;
   final String releaseDate;
-  final API_Images albumImages;
+  final ImageInfo albumImages;
   final int listeners;
   final int playCount;
   final TagsList tags;
-  final TrackList tracks;
+  final TracksList tracks;
 
   const AlbumInfo({
     this.albumName,
@@ -38,11 +39,11 @@ class AlbumInfo {
           mbid: data['mbid'],
           albumUrl: data['url'],
           releaseDate: data['releasedate'],
-          albumImages: API_Images(data['image']),
+          albumImages: ImageInfo.parse(data['image']),
           listeners: parseInt(data['listeners']),
           playCount: parseInt(data['playcount']),
           tags: TagsList(data['tags']),
-          tracks: TrackList(data['tracks']),
+          tracks: TracksList(data['tracks']),
         );
 
   @override

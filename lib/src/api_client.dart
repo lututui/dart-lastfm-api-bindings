@@ -4,7 +4,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:http/src/utils.dart' show mapToQuery;
-import 'package:last_fm_api/last_fm_api.dart';
+import 'package:last_fm_api/src/api_base.dart';
 import 'package:last_fm_api/src/exception.dart';
 
 class LastFM_API_Client extends BaseClient {
@@ -26,30 +26,46 @@ class LastFM_API_Client extends BaseClient {
     assert(_userAgent.isNotEmpty);
   }
 
-  Future<Map<String, dynamic>> buildAndGet(String methodName, String rootTag,
-      [Map<String, String> args]) {
+  Future<Map<String, dynamic>> buildAndGet(
+    String methodName,
+    String rootTag, [
+    Map<String, String> args,
+  ]) {
     assert(methodName != null && methodName.isNotEmpty);
     assert(rootTag != null && rootTag.isNotEmpty);
 
     return get(buildUri(methodName, args)).then(
-        (response) => assertOk(response, methodName, rootTag.toLowerCase()));
+      (response) => assertOk(response, methodName, rootTag.toLowerCase()),
+    );
   }
 
   Uri buildUri(String method, [Map<String, String> args]) {
     assert(method != null && method.isNotEmpty);
 
     return LastFM_API.kRootApiUri.replace(
-        query: mapToQuery(
-            {...?args, 'method': method, 'api_key': _apiKey, 'format': 'json'}
-              ..removeWhere((key, value) => value == null),
-            encoding: utf8));
+      query: mapToQuery(
+        {
+          ...?args,
+          'method': method,
+          'api_key': _apiKey,
+          'format': 'json',
+        }..removeWhere((key, value) => value == null),
+        encoding: utf8,
+      ),
+    );
   }
 
   Map<String, dynamic> assertOk(
-      Response response, String methodString, String rootTag) {
+    Response response,
+    String methodString,
+    String rootTag,
+  ) {
     if (response.statusCode != 200) {
       throw ApiException.statusCode(
-          methodString, response.statusCode, response.reasonPhrase);
+        methodString,
+        response.statusCode,
+        response.reasonPhrase,
+      );
     }
 
     if (response.body == null || response.body.isEmpty) {
@@ -60,21 +76,28 @@ class LastFM_API_Client extends BaseClient {
 
     if (decodedBody is! Map<String, dynamic>) {
       throw ApiException.wrongFormat(
-          methodString,
-          const <String, dynamic>{}.runtimeType.toString(),
-          decodedBody.runtimeType.toString());
+        methodString,
+        'Map<String, dynamic>',
+        decodedBody.runtimeType.toString(),
+      );
     }
 
     final mapResponse = decodedBody as Map<String, dynamic>;
 
     if (mapResponse['error'] != null) {
       throw ApiException.errorCode(
-          methodString, mapResponse['error'], mapResponse['message']);
+        methodString,
+        mapResponse['error'],
+        mapResponse['message'],
+      );
     }
 
     if (mapResponse[rootTag] == null) {
       throw ApiException.parsingMissingKey(
-          methodString, rootTag, '${mapResponse.keys.toList()}');
+        methodString,
+        rootTag,
+        mapResponse.keys.toString(),
+      );
     }
 
     return mapResponse[rootTag];

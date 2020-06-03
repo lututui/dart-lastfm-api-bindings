@@ -21,23 +21,25 @@ class TagInfo {
     this.content,
   });
 
-  factory TagInfo.parse(Map<String, dynamic> data) {
-    final wiki = data['wiki'] ?? const {};
-
-    return TagInfo(
-      tagName: decodeString(data['name']),
-      tagUrl: data['url'],
-      tagReach: parseInt(data['reach']),
-      taggings: parseInt(data['taggings']),
-      streamable: parseStreamable(data['streamable']),
-      published: wiki['published'],
-      summary: wiki['summary'],
-      content: wiki['content'],
-    );
-  }
+  TagInfo.parse(Map<String, dynamic> data)
+      : this(
+          tagName: decodeString(data['name']),
+          tagUrl: data['url'],
+          tagReach: parseInt(data['reach']),
+          taggings: parseInt(data['taggings'] ?? data['count']),
+          streamable: parseStreamable(data['streamable']),
+          published: (data['wiki'] ?? const {})['published'],
+          summary: (data['wiki'] ?? const {})['summary'],
+          content: (data['wiki'] ?? const {})['content'],
+        );
 
   @override
   String toString() {
-    return 'TagInfo($tagName)';
+    return 'TagInfo(${[
+      tagName,
+      [tagReach, taggings]
+          .where((element) => element != null && element > 0)
+          .join(', ')
+    ].where((element) => element.isNotEmpty).join(', ')})';
   }
 }

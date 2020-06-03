@@ -1,10 +1,10 @@
-import 'package:last_fm_api/last_fm_api.dart';
+import 'package:last_fm_api/src/api_base.dart';
 import 'package:last_fm_api/src/info/artist/basic_artist_info.dart';
 import 'package:last_fm_api/src/info/image.dart';
 import 'package:last_fm_api/src/info/track/track_info.dart';
 
 class TopTrackInfo extends TrackInfo {
-  final API_Images trackImages;
+  final ImageInfo trackImages;
 
   TopTrackInfo._(
     this.trackImages,
@@ -29,7 +29,7 @@ class TopTrackInfo extends TrackInfo {
 
   factory TopTrackInfo(Map<String, dynamic> data) {
     return TopTrackInfo._(
-      API_Images(data['image']),
+      ImageInfo.parse(data['image']),
       decodeString(data['name']),
       data['mbid'],
       data['url'],
@@ -37,7 +37,7 @@ class TopTrackInfo extends TrackInfo {
       parseInt(data['listeners']),
       parseInt(data['playcount']),
       Duration(seconds: parseInt(data['duration'])),
-      BasicArtistInfo(data['artist']),
+      BasicArtistInfo.parse(data['artist']),
     );
   }
 }

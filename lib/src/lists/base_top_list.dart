@@ -1,5 +1,5 @@
 import 'package:last_fm_api/src/api_base.dart';
-import 'package:last_fm_api/src/info/lists/base_list.dart';
+import 'package:last_fm_api/src/lists/base_list.dart';
 
 abstract class BaseTopList<T> extends BaseList<T> {
   final String source;
@@ -12,13 +12,13 @@ abstract class BaseTopList<T> extends BaseList<T> {
     Map<String, dynamic> attributes,
     List<Map<String, dynamic>> listData,
     T Function(dynamic element) listElementBuilder,
-    String sourceType,
+    List<String> sources,
   )   : assert(attributes != null),
-        assert(sourceType != null),
-        source = '$sourceType' +
-            (attributes[sourceType] == null
-                ? ''
-                : ': ${decodeString(attributes[sourceType])}'),
+        assert(sources != null),
+        source = sources.map((e) {
+          return '$e' +
+              (attributes[e] == null ? '' : ': ${decodeString(attributes[e])}');
+        }).join(', '),
         page = parseInt(attributes['page']),
         perPage = parseInt(attributes['perPage']),
         totalPages = parseInt(attributes['totalPages']),

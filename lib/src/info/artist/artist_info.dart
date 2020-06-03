@@ -5,7 +5,7 @@ class ArtistInfo {
   final String artistName;
   final String mbid;
   final String artistUrl;
-  final API_Images artistImages;
+  final ImageInfo artistImages;
   final bool streamable;
   final int listeners;
   final int playCount;

@@ -1,6 +1,6 @@
 import 'package:last_fm_api/src/api_client.dart';
-import 'package:last_fm_api/src/info/lists/top/top_albums_list.dart';
-import 'package:last_fm_api/src/info/lists/top/top_tracks_list.dart';
+import 'package:last_fm_api/src/lists/top/top_albums_list.dart';
+import 'package:last_fm_api/src/lists/top/top_tracks_list.dart';
 
 class LastFM_Artist {
   final LastFM_API_Client _client;

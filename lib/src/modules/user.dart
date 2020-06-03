@@ -1,37 +1,142 @@
+import 'package:last_fm_api/datetime_period.dart';
+import 'package:last_fm_api/src/api_base.dart';
 import 'package:last_fm_api/src/api_client.dart';
-import 'package:last_fm_api/src/info/lists/top/top_albums_list.dart';
-import 'package:last_fm_api/src/info/lists/top/top_tracks_list.dart';
+import 'package:last_fm_api/src/exception.dart';
+import 'package:last_fm_api/src/info/user_info.dart';
+import 'package:last_fm_api/src/lists/base_top_list.dart';
+import 'package:last_fm_api/src/lists/top/top_albums_list.dart';
+import 'package:last_fm_api/src/lists/top/top_artists_list.dart';
+import 'package:last_fm_api/src/lists/top/top_tags_list.dart';
+import 'package:last_fm_api/src/lists/top/top_tracks_list.dart';
+import 'package:last_fm_api/src/lists/users_list.dart';
 import 'package:last_fm_api/src/period.dart';
+import 'package:last_fm_api/src/tagging_type.dart';
 
 class LastFM_User {
   final LastFM_API_Client _client;
 
   const LastFM_User(this._client);
 
-  Future getFriends(String username, [bool recentTracks, int limit, int page]) {
-    throw UnimplementedError();
+  Future<UsersList> getFriends(
+    String username, {
+    @Deprecated('Unused') bool recentTracks,
+    int limit,
+    int page,
+  }) async {
+    assert(username != null && username.isNotEmpty);
+    assert(limit == null || limit >= 1);
+    assert(page == null || page >= 1);
+
+    return UsersList(await _client.buildAndGet(
+      'user.getFriends',
+      'friends',
+      {
+        'user': username,
+        'recenttracks': recentTracks ?? false ? '1' : '0',
+        'limit': limit?.toString(),
+        'page': page?.toString()
+      },
+    ));
   }
 
-  Future getInfo(String username) {
-    throw UnimplementedError();
+  Future<UserInfo> getInfo(String username) async {
+    assert(username != null && username.isNotEmpty);
+
+    return UserInfo.parse(
+      await _client.buildAndGet('user.getInfo', 'user', {'user': username}),
+    );
   }
 
-  Future getLovedTracks(String username, [int limit, int page]) {
-    throw UnimplementedError();
+  Future<TopTracksList> getLovedTracks(
+    String username, {
+    int limit,
+    int page,
+  }) async {
+    assert(username != null && username.isNotEmpty);
+    assert(limit == null || limit >= 1);
+    assert(page == null || page >= 1);
+
+    return TopTracksList.user(await _client.buildAndGet(
+      'user.getLovedTracks',
+      'lovedTracks',
+      {'user': username, 'limit': limit?.toString(), 'page': page?.toString()},
+    ));
   }
 
-  Future getPersonalTags(String username, String tag, String taggingType,
-      [int limit, int page]) {
-    throw UnimplementedError();
+  Future<BaseTopList> getPersonalTags(
+    String username,
+    String tag,
+    TaggingType taggingType, {
+    int limit,
+    int page,
+  }) async {
+    assert(username != null && username.isNotEmpty);
+    assert(tag != null && tag.isNotEmpty);
+    assert(taggingType != null);
+    assert(limit == null || limit >= 1);
+    assert(page == null || page >= 1);
+
+    final apiMethod = 'user.getPersonalTags';
+
+    final queryResult = await _client.buildAndGet(apiMethod, 'taggings', {
+      'user': username,
+      'tag': tag,
+      'taggingtype': taggingType.toString(),
+      'limit': limit?.toString(),
+      'page': page?.toString()
+    });
+
+    if (taggingType == TaggingType.album) {
+      ApiException.checkMissingKey(apiMethod, 'albums', queryResult);
+
+      return TopAlbumsList(
+        {...queryResult['albums'], '@attr': queryResult['@attr']},
+        ['user', 'tag'],
+      );
+    } else if (taggingType == TaggingType.artist) {
+      ApiException.checkMissingKey(apiMethod, 'artists', queryResult);
+
+      return TopArtistsList(
+        {...queryResult['artists'], '@attr': queryResult['@attr']},
+        ['user', 'tag'],
+      );
+    } else if (taggingType == TaggingType.track) {
+      ApiException.checkMissingKey(apiMethod, 'tracks', queryResult);
+
+      return TopTracksList(
+        {...queryResult['tracks'], '@attr': queryResult['@attr']},
+        ['user', 'tag'],
+      );
+    }
+
+    throw UnsupportedError('Unsupported tagging type: $taggingType');
   }
 
-  Future getRecentTags(String username,
-      [int limit,
-      int page,
-      int fromTimestamp,
-      bool extended,
-      int toTimestamp]) {
-    throw UnimplementedError();
+  Future<TopTracksList> getRecentTracks(
+    String username, {
+    int limit,
+    int page,
+    bool extended,
+    DateTime from,
+    DateTime to,
+  }) async {
+    assert(username != null && username.isNotEmpty);
+    assert(limit == null || limit >= 1);
+    assert(page == null || page >= 1);
+    assert(from == null || to == null || from.isBefore(to));
+
+    return TopTracksList.user(await _client.buildAndGet(
+      'user.getRecentTracks',
+      'recentTracks',
+      {
+        'user': username,
+        'limit': limit?.toString(),
+        'page': page?.toString(),
+        'from': from?.secondsSinceEpoch?.toString(),
+        'to': to?.secondsSinceEpoch?.toString(),
+        'extended': extended ?? false ? '1' : '0'
+      },
+    ));
   }
 
   Future<TopAlbumsList> getTopAlbums(
@@ -40,6 +145,10 @@ class LastFM_User {
     int limit,
     int page,
   }) async {
+    assert(username != null && username.isNotEmpty);
+    assert(limit == null || limit >= 1);
+    assert(page == null || page >= 1);
+
     return TopAlbumsList.user(
       await _client.buildAndGet('user.getTopAlbums', 'topAlbums', {
         'user': username,
@@ -50,13 +159,37 @@ class LastFM_User {
     );
   }
 
-  Future getTopArtists(String username,
-      [LastFM_Period period, int limit, int page]) {
-    throw UnimplementedError();
+  Future<TopArtistsList> getTopArtists(
+    String username, {
+    LastFM_Period period,
+    int limit,
+    int page,
+  }) async {
+    assert(username != null && username.isNotEmpty);
+    assert(limit == null || limit >= 1);
+    assert(page == null || page >= 1);
+
+    return TopArtistsList.user(await _client.buildAndGet(
+      'user.getTopArtists',
+      'topArtists',
+      {
+        'user': username,
+        'period': period?.toString(),
+        'limit': limit?.toString(),
+        'page': page?.toString()
+      },
+    ));
   }
 
-  Future getTopTags(String username, [int limit]) {
-    throw UnimplementedError();
+  Future<TopTagsList> getTopTags(String username, {int limit}) async {
+    assert(username != null && username.isNotEmpty);
+    assert(limit == null || limit >= 1);
+
+    return TopTagsList.user(await _client.buildAndGet(
+      'user.getTopTags',
+      'topTags',
+      {'user': username, 'limit': limit?.toString()},
+    ));
   }
 
   Future<TopTracksList> getTopTracks(
@@ -79,19 +212,98 @@ class LastFM_User {
     );
   }
 
-  Future getWeeklyAlbumChart(String username, [String from, String to]) {
-    throw UnimplementedError();
+  Future<TopAlbumsList> getWeeklyAlbumChart(
+    String username, {
+    DateTime from,
+    DateTime to,
+    DateTimePeriod period,
+  }) async {
+    assert(username != null && username.isNotEmpty);
+    assert((from == null && to == null) || period == null);
+
+    return TopAlbumsList.userChart(await _client.buildAndGet(
+      'user.getWeeklyAlbumChart',
+      'weeklyAlbumChart',
+      {
+        'user': username,
+        'from': from?.secondsSinceEpoch?.toString() ??
+            period?.begin?.secondsSinceEpoch?.toString(),
+        'to': to?.secondsSinceEpoch?.toString() ??
+            period?.end?.secondsSinceEpoch?.toString(),
+      },
+    ));
   }
 
-  Future getWeeklyArtistChart(String username, [String from, String to]) {
-    throw UnimplementedError();
+  Future<TopArtistsList> getWeeklyArtistChart(
+    String username, {
+    DateTime from,
+    DateTime to,
+    DateTimePeriod period,
+  }) async {
+    assert(username != null && username.isNotEmpty);
+    assert((from == null && to == null) || period == null);
+
+    return TopArtistsList.userChart(await _client.buildAndGet(
+      'user.getWeeklyArtistChart',
+      'weeklyArtistChart',
+      {
+        'user': username,
+        'from': from?.secondsSinceEpoch?.toString() ??
+            period?.begin?.secondsSinceEpoch?.toString(),
+        'to': to?.secondsSinceEpoch?.toString() ??
+            period?.end?.secondsSinceEpoch?.toString(),
+      },
+    ));
   }
 
-  Future getWeeklyChartList(String username) {
-    throw UnimplementedError();
+  Future<List<DateTimePeriod>> getWeeklyChartList(String username) async {
+    assert(username != null && username.isNotEmpty);
+
+    final queryResult = ((await _client.buildAndGet(
+      'user.getWeeklyChartList',
+      'weeklyChartList',
+      {'user': username},
+    ))['chart'] as List)
+        .cast<Map<String, dynamic>>();
+
+    return [
+      for (final entry in queryResult)
+        DateTimePeriod(
+          DateTime.fromMillisecondsSinceEpoch(
+            parseInt(entry['from']) * 1000,
+            isUtc: true,
+          ),
+          DateTime.fromMillisecondsSinceEpoch(
+            parseInt(entry['to']) * 1000,
+            isUtc: true,
+          ),
+        )
+    ];
   }
 
-  Future getWeeklyTrackChart(String username, [String from, String to]) {
-    throw UnimplementedError();
+  Future<TopTracksList> getWeeklyTrackChart(
+    String username, {
+    DateTime from,
+    DateTime to,
+    DateTimePeriod period,
+  }) async {
+    assert(username != null && username.isNotEmpty);
+    assert((from == null && to == null) || period == null);
+
+    return TopTracksList.userChart(await _client.buildAndGet(
+      'user.getWeeklyTrackChart',
+      'weeklyTrackChart',
+      {
+        'user': username,
+        'from': from?.secondsSinceEpoch?.toString() ??
+            period?.begin?.secondsSinceEpoch?.toString(),
+        'to': to?.secondsSinceEpoch?.toString() ??
+            period?.end?.secondsSinceEpoch?.toString(),
+      },
+    ));
   }
+}
+
+extension _SecondsSinceEpoch on DateTime {
+  int get secondsSinceEpoch => millisecondsSinceEpoch ~/ 1000;
 }

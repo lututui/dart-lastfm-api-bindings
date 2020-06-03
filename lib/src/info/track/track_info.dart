@@ -1,8 +1,8 @@
-import 'package:last_fm_api/last_fm_api.dart';
+import 'package:last_fm_api/src/api_base.dart';
 import 'package:last_fm_api/src/info/album/album_info.dart';
 import 'package:last_fm_api/src/info/artist/artist_info.dart';
 import 'package:last_fm_api/src/info/artist/basic_artist_info.dart';
-import 'package:last_fm_api/src/info/lists/tags_list.dart';
+import 'package:last_fm_api/src/lists/tags_list.dart';
 
 class TrackInfo {
   final String trackId;
@@ -49,7 +49,7 @@ class TrackInfo {
       streamable: parseStreamable(data['streamable']),
       listeners: parseInt(data['listeners']),
       playCount: parseInt(data['playcount']),
-      trackArtist: BasicArtistInfo(data['artist']),
+      trackArtist: BasicArtistInfo.parse(data['artist']),
       trackAlbum: data['album'] != null ? AlbumInfo.parse(data['album']) : null,
       trackTags: data['tags'] != null ? TagsList(data['tags']) : null,
       published: wiki['published'],

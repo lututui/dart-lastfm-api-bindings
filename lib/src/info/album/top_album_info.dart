@@ -6,23 +6,30 @@ import 'package:last_fm_api/src/info/image.dart';
 class TopAlbumInfo extends AlbumInfo {
   final BasicArtistInfo artistInfo;
 
-  TopAlbumInfo._(String albumName, int playCount, String mbid, String url,
-      this.artistInfo, API_Images images)
-      : super(
-            albumName: albumName,
-            playCount: playCount,
-            mbid: mbid,
-            albumUrl: url,
-            artistName: artistInfo.artistName,
-            albumImages: images);
+  TopAlbumInfo(
+    String albumName,
+    int playCount,
+    String mbid,
+    String url,
+    this.artistInfo,
+    ImageInfo images,
+  ) : super(
+          albumName: albumName,
+          playCount: playCount,
+          mbid: mbid,
+          albumUrl: url,
+          artistName: artistInfo.artistName,
+          albumImages: images,
+        );
 
-  factory TopAlbumInfo(Map<String, dynamic> data) {
-    return TopAlbumInfo._(
-        decodeString(data['name']),
-        parseInt(data['playcount']),
-        data['mbid'],
-        data['url'],
-        BasicArtistInfo(data['artist']),
-        API_Images(data['image']));
+  factory TopAlbumInfo.parse(Map<String, dynamic> data) {
+    return TopAlbumInfo(
+      decodeString(data['name']),
+      parseInt(data['playcount']),
+      data['mbid'],
+      data['url'],
+      BasicArtistInfo.parse(data['artist']),
+      data['image'] != null ? ImageInfo.parse(data['image']) : null,
+    );
   }
 }

@@ -51,7 +51,11 @@ bool parseStreamable(streamable) {
 int parseInt(maybeInt) {
   if (maybeInt == null) return 0;
   if (maybeInt is int) return maybeInt;
-  if (maybeInt is String) return int.parse(maybeInt);
+  if (maybeInt is String) {
+    if (maybeInt == 'FIXME') return 0;
+
+    return int.parse(maybeInt);
+  }
 
   throw FormatException();
 }
