@@ -271,16 +271,7 @@ class LastFM_User {
 
     return [
       for (final entry in queryResult)
-        DateTimePeriod(
-          DateTime.fromMillisecondsSinceEpoch(
-            parseInt(entry['from']) * 1000,
-            isUtc: true,
-          ),
-          DateTime.fromMillisecondsSinceEpoch(
-            parseInt(entry['to']) * 1000,
-            isUtc: true,
-          ),
-        )
+        DateTimePeriod.parse(parseInt(entry['from']), parseInt(entry['to']))
     ];
   }
 

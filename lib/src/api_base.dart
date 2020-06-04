@@ -5,12 +5,16 @@ import 'package:last_fm_api/src/modules/album.dart';
 import 'package:last_fm_api/src/modules/artist.dart';
 import 'package:last_fm_api/src/modules/chart.dart';
 import 'package:last_fm_api/src/modules/geo.dart';
+import 'package:last_fm_api/src/modules/library.dart';
 import 'package:last_fm_api/src/modules/tag.dart';
 import 'package:last_fm_api/src/modules/user.dart';
 
 class LastFM_API {
-  factory LastFM_API(String apiKey,
-      [String userAgent, Duration betweenRequestsDelay]) {
+  factory LastFM_API(
+    String apiKey, [
+    String userAgent,
+    Duration betweenRequestsDelay,
+  ]) {
     final client = LastFM_API_Client(apiKey, userAgent, betweenRequestsDelay);
 
     return LastFM_API._(
@@ -18,17 +22,27 @@ class LastFM_API {
       artist: LastFM_Artist(client),
       chart: LastFM_Chart(client),
       geo: LastFM_Geo(client),
+      library: LastFM_Library(client),
       tag: LastFM_Tag(client),
-      user: LastFM_User(client)
+      user: LastFM_User(client),
     );
   }
 
-  const LastFM_API._({this.album, this.artist, this.chart, this.geo, this.tag, this.user});
+  const LastFM_API._({
+    this.album,
+    this.artist,
+    this.chart,
+    this.geo,
+    this.library,
+    this.tag,
+    this.user,
+  });
 
   final LastFM_Album album;
   final LastFM_Artist artist;
   final LastFM_Chart chart;
   final LastFM_Geo geo;
+  final LastFM_Library library;
   final LastFM_Tag tag;
   final LastFM_User user;
 

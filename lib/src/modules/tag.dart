@@ -1,18 +1,35 @@
+import 'package:last_fm_api/datetime_period.dart';
+import 'package:last_fm_api/last_fm_api.dart';
 import 'package:last_fm_api/src/api_client.dart';
+import 'package:last_fm_api/src/info/tag_info.dart';
 import 'package:last_fm_api/src/lists/albums_list.dart';
+import 'package:last_fm_api/src/lists/artists_list.dart';
+import 'package:last_fm_api/src/lists/tags_list.dart';
 import 'package:last_fm_api/src/lists/tracks_list.dart';
 
 class LastFM_Tag {
   final LastFM_API_Client _client;
 
-  LastFM_Tag(this._client);
+  const LastFM_Tag(this._client) : assert(_client != null);
 
-  Future getInfo(String tagName, [String lang]) {
-    throw UnimplementedError();
+  Future<TagInfo> getInfo(String tagName, {String lang}) async {
+    assert(tagName != null && tagName.isNotEmpty);
+
+    return TagInfo.parse(await _client.buildAndGet(
+      'tag.getInfo',
+      'tag',
+      {'tag': tagName, 'lang': lang},
+    ));
   }
 
-  Future getSimilar(String tagName) {
-    throw UnimplementedError();
+  Future<TagsList> getSimilar(String tagName) async {
+    assert(tagName != null && tagName.isNotEmpty);
+
+    return TagsList.parse(await _client.buildAndGet(
+      'tag.getSimilar',
+      'similarTags',
+      {'tag': tagName},
+    ));
   }
 
   Future<AlbumsList> getTopAlbums(
@@ -33,12 +50,26 @@ class LastFM_Tag {
     );
   }
 
-  Future getTopArtists(String tagName, [int limit, int page]) {
-    throw UnimplementedError();
+  Future<ArtistsList> getTopArtists(
+    String tagName, {
+    int limit,
+    int page,
+  }) async {
+    assert(tagName != null && tagName.isNotEmpty);
+    assert(limit == null || limit >= 1);
+    assert(page == null || page >= 1);
+
+    return ArtistsList(await _client.buildAndGet(
+      'tag.getTopArtists',
+      'topArtists',
+      {'tag': tagName, 'limit': limit?.toString(), 'page': page?.toString()},
+    ));
   }
 
-  Future getTopTags() {
-    throw UnimplementedError();
+  Future<TagsList> getTopTags() async {
+    return TagsList.parse(
+      await _client.buildAndGet('tag.getTopTags', 'topTags'),
+    );
   }
 
   Future<TracksList> getTopTracks(
@@ -59,7 +90,19 @@ class LastFM_Tag {
     );
   }
 
-  Future getWeeklyChartList(String tagName) {
-    throw UnimplementedError();
+  Future<List<DateTimePeriod>> getWeeklyChartList(String tagName) async {
+    assert(tagName != null && tagName.isNotEmpty);
+
+    final queryResult = ((await _client.buildAndGet(
+      'tag.getWeeklyChartList',
+      'weeklyChartList',
+      {'tag': tagName},
+    ))['chart'] as List)
+        .cast<Map<String, dynamic>>();
+
+    return [
+      for (final entry in queryResult)
+        DateTimePeriod.parse(parseInt(entry['from']), parseInt(entry['to']))
+    ];
   }
 }
