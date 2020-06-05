@@ -30,18 +30,20 @@ class ApiException implements Exception {
     String keyPool,
   ) = ApiFormatException.missing;
 
-  static void checkMissingKey(
+  static void checkMissingKeys(
     String apiMethod,
-    String mustContain,
+    List<String> mustContain,
     Map<String, dynamic> data,
   ) {
-    if (data[mustContain] != null) return;
+    for (final key in mustContain) {
+      if (data[key] != null) continue;
 
-    throw ApiException.parsingMissingKey(
-      apiMethod,
-      mustContain,
-      data.keys.toString(),
-    );
+      throw ApiException.parsingMissingKey(
+        apiMethod,
+        key,
+        data.keys.toString(),
+      );
+    }
   }
 
   @override

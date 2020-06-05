@@ -17,11 +17,15 @@ class LastFM_Geo {
     assert(page == null || page > 0);
 
     return ArtistsList(
-      await _client.buildAndGet('geo.getTopArtists', 'topArtists', {
-        'country': country,
-        'limit': limit?.toString(),
-        'page': page?.toString(),
-      }),
+      await _client.buildAndGet(
+        'geo.getTopArtists',
+        rootTag: 'topArtists',
+        args: {
+          'country': country,
+          'limit': limit?.toString(),
+          'page': page?.toString(),
+        },
+      ),
     );
   }
 
@@ -36,7 +40,7 @@ class LastFM_Geo {
     assert(page == null || page > 0);
 
     return TracksList.parse(
-      await _client.buildAndGet('geo.getTopTracks', 'tracks', {
+      await _client.buildAndGet('geo.getTopTracks', rootTag: 'tracks', args: {
         'country': country,
         'location': location,
         'limit': limit?.toString(),

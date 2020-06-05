@@ -8,6 +8,18 @@ Future album(LastFM_API lastfm) async {
       artistName: 'A Perfect Circle',
       albumName: 'Eat The Elephant',
     ),
+    lastfm.album.getTags(
+      'tutstutui',
+      artistName: 'lady gaga',
+      albumName: 'chromatica',
+      autocorrect: true,
+    ),
+    lastfm.album.getTopTags(
+      artistName: 'dorian electra',
+      albumName: 'flamboyant',
+      autocorrect: true,
+    ),
+    lastfm.album.search('one'),
   ]);
 }
 

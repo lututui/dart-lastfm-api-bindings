@@ -1,4 +1,4 @@
-import 'package:last_fm_api/last_fm_api.dart';
+import 'package:last_fm_api/src/api_base.dart';
 import 'package:last_fm_api/src/api_client.dart';
 import 'package:last_fm_api/src/assert.dart';
 import 'package:last_fm_api/src/exception.dart';
@@ -23,14 +23,14 @@ class LastFM_Track {
 
     final queryResult = await _client.buildAndGet(
       methodName,
-      'corrections',
-      {'artist': artistName, 'track': trackName},
+      rootTag: 'corrections',
+      args: {'artist': artistName, 'track': trackName},
     );
 
-    ApiException.checkMissingKey(methodName, 'correction', queryResult);
-    ApiException.checkMissingKey(
+    ApiException.checkMissingKeys(methodName, ['correction'], queryResult);
+    ApiException.checkMissingKeys(
       methodName,
-      'track',
+      ['track'],
       queryResult['correction'],
     );
 
@@ -48,8 +48,8 @@ class LastFM_Track {
 
     return TrackInfo.parse(await _client.buildAndGet(
       'track.getInfo',
-      'track',
-      {
+      rootTag: 'track',
+      args: {
         'artist': artistName,
         'track': trackName,
         'mbid': mbid,
@@ -71,8 +71,8 @@ class LastFM_Track {
 
     return TracksList.parse(await _client.buildAndGet(
       'track.getSimilar',
-      'similarTracks',
-      {
+      rootTag: 'similarTracks',
+      args: {
         'track': trackName,
         'artist': artistName,
         'mbid': mbid,
@@ -94,8 +94,8 @@ class LastFM_Track {
 
     return TagsList.parse(await _client.buildAndGet(
       'track.getTags',
-      'tags',
-      {
+      rootTag: 'tags',
+      args: {
         'user': user,
         'track': trackName,
         'artist': artistName,
@@ -115,8 +115,8 @@ class LastFM_Track {
 
     return TagsList.parse(await _client.buildAndGet(
       'track.getTopTags',
-      'topTags',
-      {
+      rootTag: 'topTags',
+      args: {
         'track': trackName,
         'artist': artistName,
         'mbid': mbid,
@@ -151,8 +151,8 @@ class LastFM_Track {
 
     final queryResult = await _client.buildAndGet(
       methodName,
-      'results',
-      {
+      rootTag: 'results',
+      args: {
         'track': trackName,
         'artist': artistName,
         'page': page?.toString(),
@@ -160,35 +160,11 @@ class LastFM_Track {
       },
     );
 
-    ApiException.checkMissingKey(methodName, 'trackmatches', queryResult);
-    ApiException.checkMissingKey(methodName, 'opensearch:Query', queryResult);
-    ApiException.checkMissingKey(
-      methodName,
-      'startPage',
-      queryResult['opensearch:Query'],
-    );
-    ApiException.checkMissingKey(
-      methodName,
-      'opensearch:itemsPerPage',
-      queryResult,
-    );
-    ApiException.checkMissingKey(
-      methodName,
-      'opensearch:totalResults',
-      queryResult,
-    );
-
-    final perPage = parseInt(queryResult['opensearch:itemsPerPage']);
-    final total = parseInt(queryResult['opensearch:totalResults']);
+    ApiException.checkMissingKeys(methodName, ['trackmatches'], queryResult);
 
     return TracksList.parse({
       ...queryResult['trackmatches'],
-      '@attr': {
-        'page': queryResult['opensearch:Query']['startPage'],
-        'perPage': perPage,
-        'total': total,
-        'totalPages': (total / perPage).ceil(),
-      }
+      '@attr': buildSearchAttr(methodName, queryResult),
     });
   }
 

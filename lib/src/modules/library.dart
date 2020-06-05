@@ -13,8 +13,12 @@ class LastFM_Library {
 
     return ArtistsList(await _client.buildAndGet(
       'library.getArtists',
-      'artists',
-      {'user': username, 'limit': limit?.toString(), 'page': page?.toString()},
+      rootTag: 'artists',
+      args: {
+        'user': username,
+        'limit': limit?.toString(),
+        'page': page?.toString()
+      },
     ));
   }
 }

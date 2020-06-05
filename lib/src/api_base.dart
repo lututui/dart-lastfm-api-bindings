@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:last_fm_api/src/api_client.dart';
+import 'package:last_fm_api/src/exception.dart';
 import 'package:last_fm_api/src/modules/album.dart';
 import 'package:last_fm_api/src/modules/artist.dart';
 import 'package:last_fm_api/src/modules/chart.dart';
@@ -87,4 +88,31 @@ String decodeString(String target) {
   } on FormatException {
     return target;
   }
+}
+
+Map<String, dynamic> buildSearchAttr(
+  String methodName,
+  Map<String, dynamic> data,
+) {
+  ApiException.checkMissingKeys(
+    methodName,
+    ['opensearch:Query', 'opensearch:itemsPerPage', 'opensearch:totalResults'],
+    data,
+  );
+
+  ApiException.checkMissingKeys(
+    methodName,
+    ['startPage'],
+    data['opensearch:Query'],
+  );
+
+  final perPage = parseInt(data['opensearch:itemsPerPage']);
+  final total = parseInt(data['opensearch:totalResults']);
+
+  return {
+    'page': data['opensearch:Query']['startPage'],
+    'perPage': perPage,
+    'total': total,
+    'totalPages': (total / perPage).ceil(),
+  };
 }

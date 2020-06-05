@@ -13,10 +13,14 @@ class LastFM_Chart {
     assert(limit == null || limit >= 1);
 
     return ArtistsList(
-      await _client.buildAndGet('chart.getTopArtists', 'artists', {
-        'page': page?.toString(),
-        'limit': limit?.toString(),
-      }),
+      await _client.buildAndGet(
+        'chart.getTopArtists',
+        rootTag: 'artists',
+        args: {
+          'page': page?.toString(),
+          'limit': limit?.toString(),
+        },
+      ),
     );
   }
 
@@ -25,7 +29,7 @@ class LastFM_Chart {
     assert(limit == null || limit >= 1);
 
     return TagsList.parse(
-      await _client.buildAndGet('chart.getTopTags', 'tags', {
+      await _client.buildAndGet('chart.getTopTags', rootTag: 'tags', args: {
         'page': page?.toString(),
         'limit': limit?.toString(),
       }),
@@ -37,7 +41,7 @@ class LastFM_Chart {
     assert(limit == null || limit >= 1);
 
     return TracksList.parse(
-      await _client.buildAndGet('chart.getTopTracks', 'tracks', {
+      await _client.buildAndGet('chart.getTopTracks', rootTag: 'tracks', args: {
         'page': page?.toString(),
         'limit': limit?.toString(),
       }),

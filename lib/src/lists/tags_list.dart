@@ -8,6 +8,9 @@ class TagsList extends BaseList<TagInfo> {
 
   factory TagsList.parse(Map<String, dynamic> data) {
     if (data == null) return null;
+    if (data['tag'] == null) {
+      return TagsList([], ListMetadata.parse(data['@attr']));
+    }
 
     return TagsList(
       (data['tag'] as List).cast<Map<String, dynamic>>(),

@@ -55,14 +55,18 @@ class LastFM_Artist {
     assert(page == null || page >= 1);
     assert(limit == null || limit >= 1);
 
-    return AlbumsList(
-      await _client.buildAndGet('artist.getTopAlbums', 'topAlbums', {
-        'artist': artistName,
-        'mbid': mbid,
-        'autocorrect': autocorrect ?? false ? '1' : '0',
-        'page': page?.toString(),
-        'limit': limit?.toString(),
-      }),
+    return AlbumsList.parse(
+      await _client.buildAndGet(
+        'artist.getTopAlbums',
+        rootTag: 'topAlbums',
+        args: {
+          'artist': artistName,
+          'mbid': mbid,
+          'autocorrect': autocorrect ?? false ? '1' : '0',
+          'page': page?.toString(),
+          'limit': limit?.toString()
+        },
+      ),
     );
   }
 
@@ -82,13 +86,17 @@ class LastFM_Artist {
     assert(limit == null || limit >= 1);
 
     return TracksList.parse(
-      await _client.buildAndGet('artist.getTopTracks', 'topTracks', {
-        'artist': artistName,
-        'mbid': mbid,
-        'autocorrect': autocorrect ?? false ? '1' : '0',
-        'page': page?.toString(),
-        'limit': limit?.toString(),
-      }),
+      await _client.buildAndGet(
+        'artist.getTopTracks',
+        rootTag: 'topTracks',
+        args: {
+          'artist': artistName,
+          'mbid': mbid,
+          'autocorrect': autocorrect ?? false ? '1' : '0',
+          'page': page?.toString(),
+          'limit': limit?.toString()
+        },
+      ),
     );
   }
 

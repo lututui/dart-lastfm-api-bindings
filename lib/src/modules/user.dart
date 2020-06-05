@@ -29,8 +29,8 @@ class LastFM_User {
 
     return UsersList(await _client.buildAndGet(
       'user.getFriends',
-      'friends',
-      {
+      rootTag: 'friends',
+      args: {
         'user': username,
         'recenttracks': recentTracks ?? false ? '1' : '0',
         'limit': limit?.toString(),
@@ -43,7 +43,8 @@ class LastFM_User {
     assert(username != null && username.isNotEmpty);
 
     return UserInfo.parse(
-      await _client.buildAndGet('user.getInfo', 'user', {'user': username}),
+      await _client.buildAndGet('user.getInfo',
+          rootTag: 'user', args: {'user': username}),
     );
   }
 
@@ -59,8 +60,8 @@ class LastFM_User {
     return TracksList.parse(
       await _client.buildAndGet(
         'user.getLovedTracks',
-        'lovedTracks',
-        {
+        rootTag: 'lovedTracks',
+        args: {
           'user': username,
           'limit': limit?.toString(),
           'page': page?.toString()
@@ -84,7 +85,8 @@ class LastFM_User {
 
     final apiMethod = 'user.getPersonalTags';
 
-    final queryResult = await _client.buildAndGet(apiMethod, 'taggings', {
+    final queryResult =
+        await _client.buildAndGet(apiMethod, rootTag: 'taggings', args: {
       'user': username,
       'tag': tag,
       'taggingtype': taggingType.toString(),
@@ -93,19 +95,19 @@ class LastFM_User {
     });
 
     if (taggingType == TaggingType.album) {
-      ApiException.checkMissingKey(apiMethod, 'albums', queryResult);
+      ApiException.checkMissingKeys(apiMethod, ['albums'], queryResult);
 
-      return AlbumsList(
+      return AlbumsList.parse(
         {...queryResult['albums'], '@attr': queryResult['@attr']},
       );
     } else if (taggingType == TaggingType.artist) {
-      ApiException.checkMissingKey(apiMethod, 'artists', queryResult);
+      ApiException.checkMissingKeys(apiMethod, ['artists'], queryResult);
 
       return ArtistsList(
         {...queryResult['artists'], '@attr': queryResult['@attr']},
       );
     } else if (taggingType == TaggingType.track) {
-      ApiException.checkMissingKey(apiMethod, 'tracks', queryResult);
+      ApiException.checkMissingKeys(apiMethod, ['tracks'], queryResult);
 
       return TracksList.parse(
         {...queryResult['tracks'], '@attr': queryResult['@attr']},
@@ -130,8 +132,8 @@ class LastFM_User {
 
     return TracksList.parse(await _client.buildAndGet(
       'user.getRecentTracks',
-      'recentTracks',
-      {
+      rootTag: 'recentTracks',
+      args: {
         'user': username,
         'limit': limit?.toString(),
         'page': page?.toString(),
@@ -152,8 +154,9 @@ class LastFM_User {
     assert(limit == null || limit >= 1);
     assert(page == null || page >= 1);
 
-    return AlbumsList(
-      await _client.buildAndGet('user.getTopAlbums', 'topAlbums', {
+    return AlbumsList.parse(
+      await _client
+          .buildAndGet('user.getTopAlbums', rootTag: 'topAlbums', args: {
         'user': username,
         'period': period?.toString(),
         'limit': limit?.toString(),
@@ -174,8 +177,8 @@ class LastFM_User {
 
     return ArtistsList(await _client.buildAndGet(
       'user.getTopArtists',
-      'topArtists',
-      {
+      rootTag: 'topArtists',
+      args: {
         'user': username,
         'period': period?.toString(),
         'limit': limit?.toString(),
@@ -190,8 +193,8 @@ class LastFM_User {
 
     return TagsList.parse(await _client.buildAndGet(
       'user.getTopTags',
-      'topTags',
-      {'user': username, 'limit': limit?.toString()},
+      rootTag: 'topTags',
+      args: {'user': username, 'limit': limit?.toString()},
     ));
   }
 
@@ -206,12 +209,16 @@ class LastFM_User {
     assert(page == null || page >= 1);
 
     return TracksList.parse(
-      await _client.buildAndGet('user.getTopTracks', 'topTracks', {
-        'user': username,
-        'period': period?.toString(),
-        'limit': limit?.toString(),
-        'page': page?.toString()
-      }),
+      await _client.buildAndGet(
+        'user.getTopTracks',
+        rootTag: 'topTracks',
+        args: {
+          'user': username,
+          'period': period?.toString(),
+          'limit': limit?.toString(),
+          'page': page?.toString()
+        },
+      ),
     );
   }
 
@@ -224,10 +231,10 @@ class LastFM_User {
     assert(username != null && username.isNotEmpty);
     assert((from == null && to == null) || period == null);
 
-    return AlbumsList(await _client.buildAndGet(
+    return AlbumsList.parse(await _client.buildAndGet(
       'user.getWeeklyAlbumChart',
-      'weeklyAlbumChart',
-      {
+      rootTag: 'weeklyAlbumChart',
+      args: {
         'user': username,
         'from': from?.secondsSinceEpoch?.toString() ??
             period?.begin?.secondsSinceEpoch?.toString(),
@@ -248,8 +255,8 @@ class LastFM_User {
 
     return ArtistsList(await _client.buildAndGet(
       'user.getWeeklyArtistChart',
-      'weeklyArtistChart',
-      {
+      rootTag: 'weeklyArtistChart',
+      args: {
         'user': username,
         'from': from?.secondsSinceEpoch?.toString() ??
             period?.begin?.secondsSinceEpoch?.toString(),
@@ -264,8 +271,8 @@ class LastFM_User {
 
     final queryResult = ((await _client.buildAndGet(
       'user.getWeeklyChartList',
-      'weeklyChartList',
-      {'user': username},
+      rootTag: 'weeklyChartList',
+      args: {'user': username},
     ))['chart'] as List)
         .cast<Map<String, dynamic>>();
 
@@ -286,8 +293,8 @@ class LastFM_User {
 
     return TracksList.parse(await _client.buildAndGet(
       'user.getWeeklyTrackChart',
-      'weeklyTrackChart',
-      {
+      rootTag: 'weeklyTrackChart',
+      args: {
         'user': username,
         'from': from?.secondsSinceEpoch?.toString() ??
             period?.begin?.secondsSinceEpoch?.toString(),

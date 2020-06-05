@@ -17,8 +17,8 @@ class LastFM_Tag {
 
     return TagInfo.parse(await _client.buildAndGet(
       'tag.getInfo',
-      'tag',
-      {'tag': tagName, 'lang': lang},
+      rootTag: 'tag',
+      args: {'tag': tagName, 'lang': lang},
     ));
   }
 
@@ -27,8 +27,8 @@ class LastFM_Tag {
 
     return TagsList.parse(await _client.buildAndGet(
       'tag.getSimilar',
-      'similarTags',
-      {'tag': tagName},
+      rootTag: 'similarTags',
+      args: {'tag': tagName},
     ));
   }
 
@@ -41,8 +41,8 @@ class LastFM_Tag {
     assert(limit == null || limit >= 1);
     assert(page == null || page >= 1);
 
-    return AlbumsList(
-      await _client.buildAndGet('tag.getTopAlbums', 'albums', {
+    return AlbumsList.parse(
+      await _client.buildAndGet('tag.getTopAlbums', rootTag: 'albums', args: {
         'tag': tagName,
         'limit': limit?.toString(),
         'page': page?.toString(),
@@ -61,14 +61,18 @@ class LastFM_Tag {
 
     return ArtistsList(await _client.buildAndGet(
       'tag.getTopArtists',
-      'topArtists',
-      {'tag': tagName, 'limit': limit?.toString(), 'page': page?.toString()},
+      rootTag: 'topArtists',
+      args: {
+        'tag': tagName,
+        'limit': limit?.toString(),
+        'page': page?.toString()
+      },
     ));
   }
 
   Future<TagsList> getTopTags() async {
     return TagsList.parse(
-      await _client.buildAndGet('tag.getTopTags', 'topTags'),
+      await _client.buildAndGet('tag.getTopTags', rootTag: 'topTags'),
     );
   }
 
@@ -82,7 +86,7 @@ class LastFM_Tag {
     assert(page == null || page >= 1);
 
     return TracksList.parse(
-      await _client.buildAndGet('tag.getTopTracks', 'tracks', {
+      await _client.buildAndGet('tag.getTopTracks', rootTag: 'tracks', args: {
         'tag': tagName,
         'limit': limit?.toString(),
         'page': page?.toString(),
@@ -95,8 +99,8 @@ class LastFM_Tag {
 
     final queryResult = ((await _client.buildAndGet(
       'tag.getWeeklyChartList',
-      'weeklyChartList',
-      {'tag': tagName},
+      rootTag: 'weeklyChartList',
+      args: {'tag': tagName},
     ))['chart'] as List)
         .cast<Map<String, dynamic>>();
 

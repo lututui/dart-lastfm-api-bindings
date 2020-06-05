@@ -1,11 +1,15 @@
+import 'package:last_fm_api/src/api_base.dart';
 import 'package:last_fm_api/src/api_client.dart';
-
-import 'file:///C:/Users/LuizArthurChagasOliv/Documents/GitHub/last_fm_api/lib/src/info/album_info.dart';
+import 'package:last_fm_api/src/assert.dart';
+import 'package:last_fm_api/src/exception.dart';
+import 'package:last_fm_api/src/info/album_info.dart';
+import 'package:last_fm_api/src/lists/albums_list.dart';
+import 'package:last_fm_api/src/lists/tags_list.dart';
 
 class LastFM_Album {
   final LastFM_API_Client _client;
 
-  const LastFM_Album(this._client);
+  const LastFM_Album(this._client) : assert(_client != null);
 
   /// Requires auth
   Future addTags(String artistName, String albumName, List<String> tags) {
@@ -20,12 +24,12 @@ class LastFM_Album {
     String usernamePlayCount,
     String lang,
   }) async {
-    assert((artistName != null && albumName != null) || mbid != null);
+    assertOptionalStrings([artistName, albumName], mbid);
 
     return AlbumInfo.parse(await _client.buildAndGet(
       'album.getInfo',
-      'album',
-      {
+      rootTag: 'album',
+      args: {
         'artist': artistName,
         'album': albumName,
         'mbid': mbid,
@@ -36,23 +40,47 @@ class LastFM_Album {
     ));
   }
 
-  Future getTags(
+  Future<TagsList> getTags(
+    String user, {
     String artistName,
-    String albumName, [
+    String albumName,
     String mbid,
     bool autocorrect,
-    String usernamePlayCount,
-  ]) {
-    throw UnimplementedError();
+  }) async {
+    assertString(user);
+    assertOptionalStrings([artistName, albumName], mbid);
+
+    return TagsList.parse(await _client.buildAndGet(
+      'album.getTags',
+      rootTag: 'tags',
+      args: {
+        'artist': artistName,
+        'album': albumName,
+        'mbid': mbid,
+        'autocorrect': autocorrect ?? false ? '1' : '0',
+        'user': user,
+      },
+    ));
   }
 
-  Future getTopTags(
+  Future<TagsList> getTopTags({
     String artistName,
-    String albumName, [
+    String albumName,
     String mbid,
     bool autocorrect,
-  ]) {
-    throw UnimplementedError();
+  }) async {
+    assertOptionalStrings([artistName, albumName], mbid);
+
+    return TagsList.parse(await _client.buildAndGet(
+      'album.getTopTags',
+      rootTag: 'topTags',
+      args: {
+        'artist': artistName,
+        'album': albumName,
+        'mbid': mbid,
+        'autocorrect': autocorrect ?? false ? '1' : '0',
+      },
+    ));
   }
 
   /// Auth required
@@ -60,7 +88,28 @@ class LastFM_Album {
     throw UnimplementedError();
   }
 
-  Future search(String albumName, [int limit, int page]) {
-    throw UnimplementedError();
+  Future<AlbumsList> search(String albumName, {int limit, int page}) async {
+    assertString(albumName);
+    assertOptionalPositive(limit);
+    assertOptionalPositive(page);
+
+    const methodName = 'album.search';
+
+    final queryResult = await _client.buildAndGet(
+      methodName,
+      rootTag: 'results',
+      args: {
+        'album': albumName,
+        'limit': limit?.toString(),
+        'page': page?.toString(),
+      },
+    );
+
+    ApiException.checkMissingKeys(methodName, ['albummatches'], queryResult);
+
+    return AlbumsList.parse({
+      ...queryResult['albummatches'],
+      '@attr': buildSearchAttr(methodName, queryResult),
+    });
   }
 }

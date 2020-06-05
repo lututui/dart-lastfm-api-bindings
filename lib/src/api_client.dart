@@ -27,15 +27,14 @@ class LastFM_API_Client extends BaseClient {
   }
 
   Future<Map<String, dynamic>> buildAndGet(
-    String methodName,
-    String rootTag, [
+    String methodName, {
+    String rootTag,
     Map<String, String> args,
-  ]) {
+  }) {
     assert(methodName != null && methodName.isNotEmpty);
-    assert(rootTag != null && rootTag.isNotEmpty);
 
     return get(buildUri(methodName, args)).then(
-      (response) => assertOk(response, methodName, rootTag.toLowerCase()),
+      (response) => assertOk(response, methodName, rootTag?.toLowerCase()),
     );
   }
 
@@ -57,9 +56,9 @@ class LastFM_API_Client extends BaseClient {
 
   Map<String, dynamic> assertOk(
     Response response,
-    String methodString,
+    String methodString, [
     String rootTag,
-  ) {
+  ]) {
     if (response.statusCode != 200) {
       throw ApiException.statusCode(
         methodString,
@@ -90,6 +89,10 @@ class LastFM_API_Client extends BaseClient {
         mapResponse['error'],
         mapResponse['message'],
       );
+    }
+
+    if (rootTag == null || rootTag.isEmpty) {
+      return mapResponse;
     }
 
     if (mapResponse[rootTag] == null) {
