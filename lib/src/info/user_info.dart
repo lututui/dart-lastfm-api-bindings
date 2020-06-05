@@ -34,23 +34,23 @@ class UserInfo {
 
   UserInfo.parse(Map<String, dynamic> data)
       : this(
-    userId: data['id'],
-    username: data['name'],
-    realName: decodeString(data['realname']),
-    userUrl: data['url'],
-    userImages: ImageInfo.parse(data['image']),
-    country: data['country'],
-    age: parseInt(data['age']),
-    gender: data['gender'],
-    subscribers: parseInt(data['subscriber']),
-    playCount: parseInt(data['playcount']),
-    playlists: parseInt(data['playlists']),
-    bootstrap: data['bootstrap'],
-    registered: DateTime.fromMillisecondsSinceEpoch(
-      parseInt(data['registered']['unixtime']) * 1000,
-      isUtc: true,
-    ),
-  );
+          userId: data['id'],
+          username: data['name'],
+          realName: decodeString(data['realname']),
+          userUrl: data['url'],
+          userImages: ImageInfo.parse(data['image']),
+          country: data['country'],
+          age: parseInt(data['age']),
+          gender: data['gender'],
+          subscribers: parseInt(data['subscriber']),
+          playCount: parseInt(data['playcount']),
+          playlists: parseInt(data['playlists']),
+          bootstrap: data['bootstrap'],
+          registered: DateTime.fromMillisecondsSinceEpoch(
+            parseInt(data['registered']['unixtime']) * 1000,
+            isUtc: true,
+          ),
+        );
 
   @override
   String toString() {
@@ -60,7 +60,9 @@ class UserInfo {
       country,
     ]
         .where((element) =>
-    element != null && element.isNotEmpty && element.toLowerCase() != 'none')
+            element != null &&
+            element.isNotEmpty &&
+            element.toLowerCase() != 'none')
         .join(', ');
 
     return 'UserInfo($info)';

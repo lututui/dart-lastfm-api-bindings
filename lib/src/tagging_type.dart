@@ -7,7 +7,10 @@ class TaggingType {
   @override
   String toString() => type;
 
-  static const TaggingType artist = TaggingType._('artist', ['user', 'tag', 'artists']);
-  static const TaggingType album = TaggingType._('album', ['user', 'tag', 'albums']);
-  static const TaggingType track = TaggingType._('track', ['user', 'tag', 'tracks']);
+  static const TaggingType artist =
+      TaggingType._('artist', ['user', 'tag', 'artists']);
+  static const TaggingType album =
+      TaggingType._('album', ['user', 'tag', 'albums']);
+  static const TaggingType track =
+      TaggingType._('track', ['user', 'tag', 'tracks']);
 }

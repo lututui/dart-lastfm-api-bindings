@@ -7,6 +7,7 @@ import 'package:last_fm_api/src/modules/chart.dart';
 import 'package:last_fm_api/src/modules/geo.dart';
 import 'package:last_fm_api/src/modules/library.dart';
 import 'package:last_fm_api/src/modules/tag.dart';
+import 'package:last_fm_api/src/modules/track.dart';
 import 'package:last_fm_api/src/modules/user.dart';
 
 class LastFM_API {
@@ -24,6 +25,7 @@ class LastFM_API {
       geo: LastFM_Geo(client),
       library: LastFM_Library(client),
       tag: LastFM_Tag(client),
+      track: LastFM_Track(client),
       user: LastFM_User(client),
     );
   }
@@ -35,6 +37,7 @@ class LastFM_API {
     this.geo,
     this.library,
     this.tag,
+    this.track,
     this.user,
   });
 
@@ -44,6 +47,7 @@ class LastFM_API {
   final LastFM_Geo geo;
   final LastFM_Library library;
   final LastFM_Tag tag;
+  final LastFM_Track track;
   final LastFM_User user;
 
   static final Uri kRootApiUri = Uri.http(r'ws.audioscrobbler.com', '/2.0/');
@@ -53,7 +57,7 @@ bool parseStreamable(streamable) {
   if (streamable == null) return false;
 
   if (streamable is String) {
-    return streamable == '1';
+    return parseInt(streamable) == 1;
   } else if (streamable is Map<String, dynamic>) {
     return streamable.values.any((element) => element == '1');
   }

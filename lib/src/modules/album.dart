@@ -12,11 +12,14 @@ class LastFM_Album {
     throw UnimplementedError();
   }
 
-  Future<AlbumInfo> getInfo(String artistName, String albumName,
-      {String mbid,
-      bool autocorrect,
-      String usernamePlayCount,
-      String lang}) async {
+  Future<AlbumInfo> getInfo({
+    String artistName,
+    String albumName,
+    String mbid,
+    bool autocorrect,
+    String usernamePlayCount,
+    String lang,
+  }) async {
     assert((artistName != null && albumName != null) || mbid != null);
 
     return AlbumInfo.parse(await _client.buildAndGet(
