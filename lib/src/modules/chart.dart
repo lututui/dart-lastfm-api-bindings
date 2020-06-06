@@ -12,7 +12,7 @@ class LastFM_Chart {
     assert(page == null || page >= 1);
     assert(limit == null || limit >= 1);
 
-    return ArtistsList(
+    return ArtistsList.parse(
       await _client.buildAndGet(
         'chart.getTopArtists',
         rootTag: 'artists',

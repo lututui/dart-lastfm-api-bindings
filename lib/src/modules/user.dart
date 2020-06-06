@@ -103,7 +103,7 @@ class LastFM_User {
     } else if (taggingType == TaggingType.artist) {
       ApiException.checkMissingKeys(apiMethod, ['artists'], queryResult);
 
-      return ArtistsList(
+      return ArtistsList.parse(
         {...queryResult['artists'], '@attr': queryResult['@attr']},
       );
     } else if (taggingType == TaggingType.track) {
@@ -175,7 +175,7 @@ class LastFM_User {
     assert(limit == null || limit >= 1);
     assert(page == null || page >= 1);
 
-    return ArtistsList(await _client.buildAndGet(
+    return ArtistsList.parse(await _client.buildAndGet(
       'user.getTopArtists',
       rootTag: 'topArtists',
       args: {
@@ -253,7 +253,7 @@ class LastFM_User {
     assert(username != null && username.isNotEmpty);
     assert((from == null && to == null) || period == null);
 
-    return ArtistsList(await _client.buildAndGet(
+    return ArtistsList.parse(await _client.buildAndGet(
       'user.getWeeklyArtistChart',
       rootTag: 'weeklyArtistChart',
       args: {

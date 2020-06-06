@@ -25,9 +25,18 @@ Future album(LastFM_API lastfm) async {
 
 Future artist(LastFM_API lastfm) async {
   return Future.wait([
-    lastfm.artist.getTopTracks(artistName: 'Beyoncé', autocorrect: true),
-    lastfm.artist.getTopTracks(mbid: 'f59c5520-5f46-4d2c-b2c4-822eabf53419'),
+    lastfm.artist.getCorrection('florence and the machine'),
+    lastfm.artist.getInfo(artistName: 'in this moment', autocorrect: true),
+    lastfm.artist.getSimilar(artistName: 'arch enemy', autocorrect: true),
+    lastfm.artist.getTags(
+      'tutstutui',
+      artistName: 'lady gaga',
+      autocorrect: true,
+    ),
     lastfm.artist.getTopAlbums('Lady Gaga'),
+    lastfm.artist.getTopTags(artistName: 'poppy', autocorrect: true),
+    lastfm.artist.getTopTracks(mbid: 'f59c5520-5f46-4d2c-b2c4-822eabf53419'),
+    lastfm.artist.search('teeth'),
   ]);
 }
 
@@ -54,12 +63,12 @@ Future library(LastFM_API lastfm) async {
 
 Future tag(LastFM_API lastfm) async {
   return Future.wait([
-    lastfm.tag.getTopTracks('loquendo'),
-    lastfm.tag.getTopAlbums('indie'),
     lastfm.tag.getInfo('pop'),
     lastfm.tag.getSimilar('pop'),
+    lastfm.tag.getTopAlbums('indie'),
     lastfm.tag.getTopArtists('country'),
     lastfm.tag.getTopTags(),
+    lastfm.tag.getTopTracks('loquendo'),
     lastfm.tag.getWeeklyChartList('metal'),
   ]);
 }

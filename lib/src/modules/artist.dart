@@ -1,47 +1,101 @@
+import 'package:last_fm_api/src/api_base.dart';
 import 'package:last_fm_api/src/api_client.dart';
+import 'package:last_fm_api/src/assert.dart';
+import 'package:last_fm_api/src/exception.dart';
+import 'package:last_fm_api/src/info/artist_info.dart';
 import 'package:last_fm_api/src/lists/albums_list.dart';
+import 'package:last_fm_api/src/lists/artists_list.dart';
+import 'package:last_fm_api/src/lists/tags_list.dart';
 import 'package:last_fm_api/src/lists/tracks_list.dart';
 
 class LastFM_Artist {
   final LastFM_API_Client _client;
 
-  const LastFM_Artist(this._client);
+  const LastFM_Artist(this._client) : assert(_client != null);
 
-  /// Requires auth
-  Future addTags(String artistName, List<String> tags) {
-    throw UnimplementedError();
+  Future<ArtistInfo> getCorrection(String artistName) async {
+    assertString(artistName);
+
+    const methodName = 'artist.getCorrection';
+
+    final queryResult = await _client.buildAndGet(
+      methodName,
+      rootTag: 'corrections',
+      args: {'artist': artistName},
+    );
+
+    ApiException.checkMissingKeys(methodName, ['correction'], queryResult);
+    ApiException.checkMissingKeys(
+      methodName,
+      ['artist'],
+      queryResult['correction'],
+    );
+
+    return ArtistInfo.parse(queryResult['correction']['artist']);
   }
 
-  Future getCorrection(String artistName) {
-    throw UnimplementedError();
-  }
-
-  Future getInfo(
-    String artistName, [
+  Future<ArtistInfo> getInfo({
+    String artistName,
     String mbid,
     String lang,
     bool autocorrect,
     String usernamePlayCount,
-  ]) {
-    throw UnimplementedError();
+  }) async {
+    assertOptionalStrings([artistName], mbid);
+
+    return ArtistInfo.parse(await _client.buildAndGet(
+      'artist.getInfo',
+      rootTag: 'artist',
+      args: {
+        'artist': artistName,
+        'mbid': mbid,
+        'lang': lang,
+        'autocorrect': autocorrect ?? false ? '1' : '0',
+        'username': usernamePlayCount,
+      },
+    ));
   }
 
-  Future getSimilar(
-    String artistName, [
+  Future<ArtistsList> getSimilar({
+    String artistName,
     String mbid,
     int limit,
     bool autocorrect,
-  ]) {
-    throw UnimplementedError();
+  }) async {
+    assertOptionalStrings([artistName], mbid);
+    assertOptionalPositive(limit);
+
+    return ArtistsList.parse(await _client.buildAndGet(
+      'artist.getSimilar',
+      rootTag: 'similarArtists',
+      args: {
+        'artist': artistName,
+        'mbid': mbid,
+        'limit': limit?.toString(),
+        'autocorrect': autocorrect ?? false ? '1' : '0'
+      },
+    ));
   }
 
-  Future getTags(
-    String artistName, [
+  Future<TagsList> getTags(
+    String username, {
+    String artistName,
     String mbid,
-    String username,
     bool autocorrect,
-  ]) {
-    throw UnimplementedError();
+  }) async {
+    assertString(username);
+    assertOptionalStrings([artistName], mbid);
+
+    return TagsList.parse(await _client.buildAndGet(
+      'artist.getTags',
+      rootTag: 'tags',
+      args: {
+        'artist': artistName,
+        'mbid': mbid,
+        'user': username,
+        'autocorrect': autocorrect ?? false ? '1' : '0'
+      },
+    ));
   }
 
   Future<AlbumsList> getTopAlbums(
@@ -70,8 +124,22 @@ class LastFM_Artist {
     );
   }
 
-  Future getTopTags(String artistName, [String mbid, bool autocorrect]) {
-    throw UnimplementedError();
+  Future<TagsList> getTopTags({
+    String artistName,
+    String mbid,
+    bool autocorrect,
+  }) async {
+    assertOptionalStrings([artistName], mbid);
+
+    return TagsList.parse(await _client.buildAndGet(
+      'artist.getTopTags',
+      rootTag: 'topTags',
+      args: {
+        'artist': artistName,
+        'mbid': mbid,
+        'autocorrect': autocorrect ?? false ? '1' : '0'
+      },
+    ));
   }
 
   Future<TracksList> getTopTracks({
@@ -100,12 +168,38 @@ class LastFM_Artist {
     );
   }
 
-  /// Requires auth
+  Future<ArtistsList> search(String artistName, {int limit, int page}) async {
+    assertString(artistName);
+    assertOptionalPositive(limit);
+    assertOptionalPositive(page);
+
+    const methodName = 'artist.search';
+
+    final queryResult = await _client.buildAndGet(
+      methodName,
+      rootTag: 'results',
+      args: {
+        'artist': artistName,
+        'page': page?.toString(),
+        'limit': limit?.toString(),
+      },
+    );
+
+    ApiException.checkMissingKeys(methodName, ['artistmatches'], queryResult);
+
+    return ArtistsList.parse({
+      ...queryResult['artistmatches'],
+      '@attr': buildSearchAttr(methodName, queryResult),
+    });
+  }
+
+  // TODO: Requires auth
   Future removeTag(String artistName, String tag) {
     throw UnimplementedError();
   }
 
-  Future search(String artistName, [int limit, int page]) {
+  // TODO: Requires auth
+  Future addTags(String artistName, List<String> tags) {
     throw UnimplementedError();
   }
 }

@@ -16,7 +16,7 @@ class LastFM_Geo {
     assert(limit == null || limit > 0);
     assert(page == null || page > 0);
 
-    return ArtistsList(
+    return ArtistsList.parse(
       await _client.buildAndGet(
         'geo.getTopArtists',
         rootTag: 'topArtists',

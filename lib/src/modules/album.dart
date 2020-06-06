@@ -11,11 +11,6 @@ class LastFM_Album {
 
   const LastFM_Album(this._client) : assert(_client != null);
 
-  /// Requires auth
-  Future addTags(String artistName, String albumName, List<String> tags) {
-    throw UnimplementedError();
-  }
-
   Future<AlbumInfo> getInfo({
     String artistName,
     String albumName,
@@ -83,11 +78,6 @@ class LastFM_Album {
     ));
   }
 
-  /// Auth required
-  Future removeTag(String artistName, String albumName, String tagName) {
-    throw UnimplementedError();
-  }
-
   Future<AlbumsList> search(String albumName, {int limit, int page}) async {
     assertString(albumName);
     assertOptionalPositive(limit);
@@ -111,5 +101,15 @@ class LastFM_Album {
       ...queryResult['albummatches'],
       '@attr': buildSearchAttr(methodName, queryResult),
     });
+  }
+
+  // TODO: Requires auth
+  Future addTags(String artistName, String albumName, List<String> tags) {
+    throw UnimplementedError();
+  }
+
+  // TODO: Auth required
+  Future removeTag(String artistName, String albumName, String tagName) {
+    throw UnimplementedError();
   }
 }

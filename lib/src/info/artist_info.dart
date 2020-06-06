@@ -46,7 +46,7 @@ class ArtistInfo {
       listeners: parseInt(data['listeners']),
       playCount: parseInt(data['playcount']),
       similarArtists: data['similarArtists'],
-      tags: data['tags'],
+      tags: TagsList.parse(data['tags']),
       published: (data['wiki'] ?? const {})['published'],
       summary: (data['wiki'] ?? const {})['summary'],
       bio: (data['wiki'] ?? const {})['bio'],
