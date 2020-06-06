@@ -21,7 +21,7 @@ class LastFM_Track {
 
     const methodName = 'track.getCorrection';
 
-    final queryResult = await _client.buildAndGet(
+    final queryResult = await _client.buildAndSubmit(
       methodName,
       rootTag: 'corrections',
       args: {'artist': artistName, 'track': trackName},
@@ -46,7 +46,7 @@ class LastFM_Track {
   }) async {
     assert((artistName != null && trackName != null) || mbid != null);
 
-    return TrackInfo.parse(await _client.buildAndGet(
+    return TrackInfo.parse(await _client.buildAndSubmit(
       'track.getInfo',
       rootTag: 'track',
       args: {
@@ -69,7 +69,7 @@ class LastFM_Track {
     assertOptionalStrings([trackName, artistName], mbid);
     assertOptionalPositive(limit);
 
-    return TracksList.parse(await _client.buildAndGet(
+    return TracksList.parse(await _client.buildAndSubmit(
       'track.getSimilar',
       rootTag: 'similarTracks',
       args: {
@@ -92,7 +92,7 @@ class LastFM_Track {
     assertString(user);
     assertOptionalStrings([trackName, artistName], mbid);
 
-    return TagsList.parse(await _client.buildAndGet(
+    return TagsList.parse(await _client.buildAndSubmit(
       'track.getTags',
       rootTag: 'tags',
       args: {
@@ -113,7 +113,7 @@ class LastFM_Track {
   }) async {
     assertOptionalStrings([artistName, trackName], mbid);
 
-    return TagsList.parse(await _client.buildAndGet(
+    return TagsList.parse(await _client.buildAndSubmit(
       'track.getTopTags',
       rootTag: 'topTags',
       args: {
@@ -149,7 +149,7 @@ class LastFM_Track {
 
     const methodName = 'track.search';
 
-    final queryResult = await _client.buildAndGet(
+    final queryResult = await _client.buildAndSubmit(
       methodName,
       rootTag: 'results',
       args: {

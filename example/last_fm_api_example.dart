@@ -131,7 +131,18 @@ Future<void> main(List<String> args) async {
       if (!e.startsWith('#')) e.split(':')[0].trim(): e.split(':')[1].trim()
   };
 
-  final lastfm = LastFM_API(secret['api_key']);
+  final lastfm = LastFM_API(secret['api_key'], apiSecret: secret['api_secret']);
+
+  await lastfm.auth
+      .getToken()
+      .then((token) {
+        print(lastfm.auth.buildAuthUrl(token));
+        stdin.readLineSync();
+        return token;
+      })
+      .then((token) => lastfm.auth.getSession(token))
+      .then((session) => lastfm.sessionKey = session.sessionKey);
+
   final futures = <Future>[];
 
   for (final arg in args) {

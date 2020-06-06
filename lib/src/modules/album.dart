@@ -21,7 +21,7 @@ class LastFM_Album {
   }) async {
     assertOptionalStrings([artistName, albumName], mbid);
 
-    return AlbumInfo.parse(await _client.buildAndGet(
+    return AlbumInfo.parse(await _client.buildAndSubmit(
       'album.getInfo',
       rootTag: 'album',
       args: {
@@ -45,7 +45,7 @@ class LastFM_Album {
     assertString(user);
     assertOptionalStrings([artistName, albumName], mbid);
 
-    return TagsList.parse(await _client.buildAndGet(
+    return TagsList.parse(await _client.buildAndSubmit(
       'album.getTags',
       rootTag: 'tags',
       args: {
@@ -66,7 +66,7 @@ class LastFM_Album {
   }) async {
     assertOptionalStrings([artistName, albumName], mbid);
 
-    return TagsList.parse(await _client.buildAndGet(
+    return TagsList.parse(await _client.buildAndSubmit(
       'album.getTopTags',
       rootTag: 'topTags',
       args: {
@@ -85,7 +85,7 @@ class LastFM_Album {
 
     const methodName = 'album.search';
 
-    final queryResult = await _client.buildAndGet(
+    final queryResult = await _client.buildAndSubmit(
       methodName,
       rootTag: 'results',
       args: {

@@ -11,7 +11,7 @@ class LastFM_Library {
     assert(limit == null || limit >= 1);
     assert(page == null || page >= 1);
 
-    return ArtistsList.parse(await _client.buildAndGet(
+    return ArtistsList.parse(await _client.buildAndSubmit(
       'library.getArtists',
       rootTag: 'artists',
       args: {

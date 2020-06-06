@@ -2,56 +2,94 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 
+import 'package:crypto/crypto.dart';
 import 'package:http/http.dart';
 import 'package:http/src/utils.dart' show mapToQuery;
 import 'package:last_fm_api/src/api_base.dart';
 import 'package:last_fm_api/src/exception.dart';
+import 'package:meta/meta.dart';
 
 class LastFM_API_Client extends BaseClient {
-  final String _apiKey;
+  final String apiKey;
+  final String _apiSecret;
+
   final String _userAgent;
-  final Duration _delay;
+  final Duration _rateLimit;
+
   final Queue<Completer> _requestQueue = Queue();
-  final Client _internal;
+  final Client _internal = Client();
 
-  Timer _rateLimit;
+  Timer _queueTimer;
+  String _sessionKey;
 
-  LastFM_API_Client(this._apiKey,
-      [String userAgent, Duration betweenRequestsDelay])
-      : _userAgent = userAgent ?? 'DartLastFMBindings/0.0.1',
-        _delay = (betweenRequestsDelay ?? Duration.zero).inMilliseconds < 100
-            ? const Duration(milliseconds: 100)
-            : betweenRequestsDelay,
-        _internal = Client() {
-    assert(_userAgent.isNotEmpty);
-  }
+  LastFM_API_Client(
+    this.apiKey, {
+    String apiSecret,
+    String sessionKey,
+    @required String userAgent,
+    @required Duration rateLimit,
+  })  : assert(userAgent != null && userAgent.isNotEmpty),
+        assert(rateLimit != null),
+        _apiSecret = apiSecret,
+        _sessionKey = sessionKey,
+        _userAgent = userAgent,
+        _rateLimit = rateLimit;
 
-  Future<Map<String, dynamic>> buildAndGet(
+  set sessionKey(String value) => _sessionKey = value;
+
+  bool get isAuth => _sessionKey != null && _sessionKey.isNotEmpty;
+
+  Future<Map<String, dynamic>> buildAndSubmit(
     String methodName, {
     String rootTag,
     Map<String, String> args,
+    bool forcePost = false,
   }) {
     assert(methodName != null && methodName.isNotEmpty);
 
-    return get(buildUri(methodName, args)).then(
+    final mapData = {
+      ...?args,
+      'method': methodName,
+      'api_key': apiKey,
+      if (isAuth) 'sk': _sessionKey,
+    }..removeWhere((key, value) => value == null);
+
+    if (forcePost || isAuth) {
+      return post(LastFM_API.kRootApiUri, body: signBody(mapData)).then(
+        (response) => assertOk(response, methodName, rootTag?.toLowerCase()),
+      );
+    }
+
+    return get(
+      LastFM_API.kRootApiUri.replace(
+        query: mapToQuery(
+          {...LastFM_API.kRootApiUri.queryParameters, ...mapData},
+          encoding: utf8,
+        ),
+      ),
+    ).then(
       (response) => assertOk(response, methodName, rootTag?.toLowerCase()),
     );
   }
 
-  Uri buildUri(String method, [Map<String, String> args]) {
-    assert(method != null && method.isNotEmpty);
+  Map<String, String> signBody(Map<String, String> preBody) {
+    assert(_apiSecret != null && _apiSecret.isNotEmpty);
 
-    return LastFM_API.kRootApiUri.replace(
-      query: mapToQuery(
-        {
-          ...?args,
-          'method': method,
-          'api_key': _apiKey,
-          'format': 'json',
-        }..removeWhere((key, value) => value == null),
-        encoding: utf8,
-      ),
-    );
+    final bodyKeys = List.of(preBody.keys)..sort();
+    final signatureBuilder = StringBuffer();
+
+    for (final key in bodyKeys) {
+      signatureBuilder.write('$key${preBody[key]}');
+    }
+
+    signatureBuilder.write(_apiSecret);
+
+    final sigStr = signatureBuilder.toString();
+
+    return {
+      ...preBody,
+      'api_sig': md5.convert(utf8.encode(sigStr)).toString(),
+    };
   }
 
   Map<String, dynamic> assertOk(
@@ -119,7 +157,7 @@ class LastFM_API_Client extends BaseClient {
     if (_requestQueue.isEmpty) {
       print('Destroying client timer');
       timer.cancel();
-      _rateLimit = null;
+      _queueTimer = null;
       return;
     }
 
@@ -127,12 +165,12 @@ class LastFM_API_Client extends BaseClient {
   }
 
   @override
-  Future<Response> get(url, {Map<String, String> headers}) {
+  Future<Response> get(dynamic url, {Map<String, String> headers}) {
     assert(url is Uri);
 
     final uri = url as Uri;
 
-    assert(uri.queryParameters['api_key'] == _apiKey);
+    assert(uri.queryParameters['api_key'] == apiKey);
     assert(uri.queryParameters['format'] == 'json');
     assert(uri.queryParameters['method'] != null);
 
@@ -142,9 +180,31 @@ class LastFM_API_Client extends BaseClient {
   }
 
   @override
-  Future<Response> post(url,
-      {Map<String, String> headers, body, Encoding encoding}) {
-    throw UnimplementedError();
+  Future<Response> post(
+    dynamic url, {
+    Map<String, String> headers,
+    dynamic body,
+    Encoding encoding,
+  }) {
+    assert(url is Uri);
+    assert(body is Map<String, String>);
+
+    final uri = (url as Uri).replace(scheme: 'https');
+    final mapBody = body as Map<String, String>;
+
+    assert(uri.queryParameters['format'] == 'json');
+    assert(mapBody['api_key'] == apiKey);
+    assert(mapBody['method'] != null);
+    assert(mapBody['api_sig'] != null);
+
+    print('[API_Client] [POST] ${mapBody['method']}');
+
+    return super.post(
+      uri,
+      headers: headers,
+      body: mapBody,
+      encoding: encoding ?? utf8,
+    );
   }
 
   @override
@@ -155,8 +215,8 @@ class LastFM_API_Client extends BaseClient {
     print('Received request 0x${request.hashCode.toRadixString(16)} at '
         '${now.hour}:${now.minute}:${now.second}:${now.millisecond}');
 
-    if (_rateLimit == null) {
-      _rateLimit = Timer.periodic(_delay, _onTimer);
+    if (_queueTimer == null) {
+      _queueTimer = Timer.periodic(_rateLimit, _onTimer);
 
       return _performSend(request);
     }

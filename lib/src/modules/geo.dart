@@ -17,7 +17,7 @@ class LastFM_Geo {
     assert(page == null || page > 0);
 
     return ArtistsList.parse(
-      await _client.buildAndGet(
+      await _client.buildAndSubmit(
         'geo.getTopArtists',
         rootTag: 'topArtists',
         args: {
@@ -40,7 +40,7 @@ class LastFM_Geo {
     assert(page == null || page > 0);
 
     return TracksList.parse(
-      await _client.buildAndGet('geo.getTopTracks', rootTag: 'tracks', args: {
+      await _client.buildAndSubmit('geo.getTopTracks', rootTag: 'tracks', args: {
         'country': country,
         'location': location,
         'limit': limit?.toString(),

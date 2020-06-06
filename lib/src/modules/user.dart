@@ -27,7 +27,7 @@ class LastFM_User {
     assert(limit == null || limit >= 1);
     assert(page == null || page >= 1);
 
-    return UsersList(await _client.buildAndGet(
+    return UsersList(await _client.buildAndSubmit(
       'user.getFriends',
       rootTag: 'friends',
       args: {
@@ -43,7 +43,7 @@ class LastFM_User {
     assert(username != null && username.isNotEmpty);
 
     return UserInfo.parse(
-      await _client.buildAndGet('user.getInfo',
+      await _client.buildAndSubmit('user.getInfo',
           rootTag: 'user', args: {'user': username}),
     );
   }
@@ -58,7 +58,7 @@ class LastFM_User {
     assert(page == null || page >= 1);
 
     return TracksList.parse(
-      await _client.buildAndGet(
+      await _client.buildAndSubmit(
         'user.getLovedTracks',
         rootTag: 'lovedTracks',
         args: {
@@ -86,7 +86,7 @@ class LastFM_User {
     final apiMethod = 'user.getPersonalTags';
 
     final queryResult =
-        await _client.buildAndGet(apiMethod, rootTag: 'taggings', args: {
+        await _client.buildAndSubmit(apiMethod, rootTag: 'taggings', args: {
       'user': username,
       'tag': tag,
       'taggingtype': taggingType.toString(),
@@ -130,7 +130,7 @@ class LastFM_User {
     assert(page == null || page >= 1);
     assert(from == null || to == null || from.isBefore(to));
 
-    return TracksList.parse(await _client.buildAndGet(
+    return TracksList.parse(await _client.buildAndSubmit(
       'user.getRecentTracks',
       rootTag: 'recentTracks',
       args: {
@@ -156,7 +156,7 @@ class LastFM_User {
 
     return AlbumsList.parse(
       await _client
-          .buildAndGet('user.getTopAlbums', rootTag: 'topAlbums', args: {
+          .buildAndSubmit('user.getTopAlbums', rootTag: 'topAlbums', args: {
         'user': username,
         'period': period?.toString(),
         'limit': limit?.toString(),
@@ -175,7 +175,7 @@ class LastFM_User {
     assert(limit == null || limit >= 1);
     assert(page == null || page >= 1);
 
-    return ArtistsList.parse(await _client.buildAndGet(
+    return ArtistsList.parse(await _client.buildAndSubmit(
       'user.getTopArtists',
       rootTag: 'topArtists',
       args: {
@@ -191,7 +191,7 @@ class LastFM_User {
     assert(username != null && username.isNotEmpty);
     assert(limit == null || limit >= 1);
 
-    return TagsList.parse(await _client.buildAndGet(
+    return TagsList.parse(await _client.buildAndSubmit(
       'user.getTopTags',
       rootTag: 'topTags',
       args: {'user': username, 'limit': limit?.toString()},
@@ -209,7 +209,7 @@ class LastFM_User {
     assert(page == null || page >= 1);
 
     return TracksList.parse(
-      await _client.buildAndGet(
+      await _client.buildAndSubmit(
         'user.getTopTracks',
         rootTag: 'topTracks',
         args: {
@@ -231,7 +231,7 @@ class LastFM_User {
     assert(username != null && username.isNotEmpty);
     assert((from == null && to == null) || period == null);
 
-    return AlbumsList.parse(await _client.buildAndGet(
+    return AlbumsList.parse(await _client.buildAndSubmit(
       'user.getWeeklyAlbumChart',
       rootTag: 'weeklyAlbumChart',
       args: {
@@ -253,7 +253,7 @@ class LastFM_User {
     assert(username != null && username.isNotEmpty);
     assert((from == null && to == null) || period == null);
 
-    return ArtistsList.parse(await _client.buildAndGet(
+    return ArtistsList.parse(await _client.buildAndSubmit(
       'user.getWeeklyArtistChart',
       rootTag: 'weeklyArtistChart',
       args: {
@@ -269,7 +269,7 @@ class LastFM_User {
   Future<List<DateTimePeriod>> getWeeklyChartList(String username) async {
     assert(username != null && username.isNotEmpty);
 
-    final queryResult = ((await _client.buildAndGet(
+    final queryResult = ((await _client.buildAndSubmit(
       'user.getWeeklyChartList',
       rootTag: 'weeklyChartList',
       args: {'user': username},
@@ -291,7 +291,7 @@ class LastFM_User {
     assert(username != null && username.isNotEmpty);
     assert((from == null && to == null) || period == null);
 
-    return TracksList.parse(await _client.buildAndGet(
+    return TracksList.parse(await _client.buildAndSubmit(
       'user.getWeeklyTrackChart',
       rootTag: 'weeklyTrackChart',
       args: {

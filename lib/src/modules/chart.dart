@@ -13,7 +13,7 @@ class LastFM_Chart {
     assert(limit == null || limit >= 1);
 
     return ArtistsList.parse(
-      await _client.buildAndGet(
+      await _client.buildAndSubmit(
         'chart.getTopArtists',
         rootTag: 'artists',
         args: {
@@ -29,7 +29,7 @@ class LastFM_Chart {
     assert(limit == null || limit >= 1);
 
     return TagsList.parse(
-      await _client.buildAndGet('chart.getTopTags', rootTag: 'tags', args: {
+      await _client.buildAndSubmit('chart.getTopTags', rootTag: 'tags', args: {
         'page': page?.toString(),
         'limit': limit?.toString(),
       }),
@@ -41,7 +41,7 @@ class LastFM_Chart {
     assert(limit == null || limit >= 1);
 
     return TracksList.parse(
-      await _client.buildAndGet('chart.getTopTracks', rootTag: 'tracks', args: {
+      await _client.buildAndSubmit('chart.getTopTracks', rootTag: 'tracks', args: {
         'page': page?.toString(),
         'limit': limit?.toString(),
       }),

@@ -18,7 +18,7 @@ class LastFM_Artist {
 
     const methodName = 'artist.getCorrection';
 
-    final queryResult = await _client.buildAndGet(
+    final queryResult = await _client.buildAndSubmit(
       methodName,
       rootTag: 'corrections',
       args: {'artist': artistName},
@@ -43,7 +43,7 @@ class LastFM_Artist {
   }) async {
     assertOptionalStrings([artistName], mbid);
 
-    return ArtistInfo.parse(await _client.buildAndGet(
+    return ArtistInfo.parse(await _client.buildAndSubmit(
       'artist.getInfo',
       rootTag: 'artist',
       args: {
@@ -65,7 +65,7 @@ class LastFM_Artist {
     assertOptionalStrings([artistName], mbid);
     assertOptionalPositive(limit);
 
-    return ArtistsList.parse(await _client.buildAndGet(
+    return ArtistsList.parse(await _client.buildAndSubmit(
       'artist.getSimilar',
       rootTag: 'similarArtists',
       args: {
@@ -86,7 +86,7 @@ class LastFM_Artist {
     assertString(username);
     assertOptionalStrings([artistName], mbid);
 
-    return TagsList.parse(await _client.buildAndGet(
+    return TagsList.parse(await _client.buildAndSubmit(
       'artist.getTags',
       rootTag: 'tags',
       args: {
@@ -110,7 +110,7 @@ class LastFM_Artist {
     assert(limit == null || limit >= 1);
 
     return AlbumsList.parse(
-      await _client.buildAndGet(
+      await _client.buildAndSubmit(
         'artist.getTopAlbums',
         rootTag: 'topAlbums',
         args: {
@@ -131,7 +131,7 @@ class LastFM_Artist {
   }) async {
     assertOptionalStrings([artistName], mbid);
 
-    return TagsList.parse(await _client.buildAndGet(
+    return TagsList.parse(await _client.buildAndSubmit(
       'artist.getTopTags',
       rootTag: 'topTags',
       args: {
@@ -154,7 +154,7 @@ class LastFM_Artist {
     assert(limit == null || limit >= 1);
 
     return TracksList.parse(
-      await _client.buildAndGet(
+      await _client.buildAndSubmit(
         'artist.getTopTracks',
         rootTag: 'topTracks',
         args: {
@@ -175,7 +175,7 @@ class LastFM_Artist {
 
     const methodName = 'artist.search';
 
-    final queryResult = await _client.buildAndGet(
+    final queryResult = await _client.buildAndSubmit(
       methodName,
       rootTag: 'results',
       args: {

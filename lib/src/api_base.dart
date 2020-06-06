@@ -4,24 +4,36 @@ import 'package:last_fm_api/src/api_client.dart';
 import 'package:last_fm_api/src/exception.dart';
 import 'package:last_fm_api/src/modules/album.dart';
 import 'package:last_fm_api/src/modules/artist.dart';
+import 'package:last_fm_api/src/modules/auth.dart';
 import 'package:last_fm_api/src/modules/chart.dart';
 import 'package:last_fm_api/src/modules/geo.dart';
 import 'package:last_fm_api/src/modules/library.dart';
 import 'package:last_fm_api/src/modules/tag.dart';
 import 'package:last_fm_api/src/modules/track.dart';
 import 'package:last_fm_api/src/modules/user.dart';
+import 'package:meta/meta.dart';
+
+const _kDefaultUserAgent = 'DartLastFMBindings/0.0.1';
 
 class LastFM_API {
   factory LastFM_API(
-    String apiKey, [
-    String userAgent,
-    Duration betweenRequestsDelay,
-  ]) {
-    final client = LastFM_API_Client(apiKey, userAgent, betweenRequestsDelay);
+    String apiKey, {
+    String apiSecret,
+    String userAgent = _kDefaultUserAgent,
+    Duration rateLimit = const Duration(milliseconds: 100),
+  }) {
+    final client = LastFM_API_Client(
+      apiKey,
+      apiSecret: apiSecret,
+      userAgent: userAgent,
+      rateLimit: rateLimit,
+    );
 
     return LastFM_API._(
+      client: client,
       album: LastFM_Album(client),
       artist: LastFM_Artist(client),
+      auth: LastFM_Auth(client),
       chart: LastFM_Chart(client),
       geo: LastFM_Geo(client),
       library: LastFM_Library(client),
@@ -32,18 +44,22 @@ class LastFM_API {
   }
 
   const LastFM_API._({
-    this.album,
-    this.artist,
-    this.chart,
-    this.geo,
-    this.library,
-    this.tag,
-    this.track,
-    this.user,
+    @required this.client,
+    @required this.album,
+    @required this.artist,
+    @required this.auth,
+    @required this.chart,
+    @required this.geo,
+    @required this.library,
+    @required this.tag,
+    @required this.track,
+    @required this.user,
   });
 
+  final LastFM_API_Client client;
   final LastFM_Album album;
   final LastFM_Artist artist;
+  final LastFM_Auth auth;
   final LastFM_Chart chart;
   final LastFM_Geo geo;
   final LastFM_Library library;
@@ -51,7 +67,13 @@ class LastFM_API {
   final LastFM_Track track;
   final LastFM_User user;
 
-  static final Uri kRootApiUri = Uri.http(r'ws.audioscrobbler.com', '/2.0/');
+  static final Uri kRootApiUri = Uri.http(
+    r'ws.audioscrobbler.com',
+    '/2.0/',
+    {'format': 'json'},
+  );
+
+  set sessionKey(String key) => client.sessionKey = key;
 }
 
 bool parseStreamable(streamable) {

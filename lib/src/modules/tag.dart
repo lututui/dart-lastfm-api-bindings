@@ -15,7 +15,7 @@ class LastFM_Tag {
   Future<TagInfo> getInfo(String tagName, {String lang}) async {
     assert(tagName != null && tagName.isNotEmpty);
 
-    return TagInfo.parse(await _client.buildAndGet(
+    return TagInfo.parse(await _client.buildAndSubmit(
       'tag.getInfo',
       rootTag: 'tag',
       args: {'tag': tagName, 'lang': lang},
@@ -25,7 +25,7 @@ class LastFM_Tag {
   Future<TagsList> getSimilar(String tagName) async {
     assert(tagName != null && tagName.isNotEmpty);
 
-    return TagsList.parse(await _client.buildAndGet(
+    return TagsList.parse(await _client.buildAndSubmit(
       'tag.getSimilar',
       rootTag: 'similarTags',
       args: {'tag': tagName},
@@ -42,7 +42,7 @@ class LastFM_Tag {
     assert(page == null || page >= 1);
 
     return AlbumsList.parse(
-      await _client.buildAndGet('tag.getTopAlbums', rootTag: 'albums', args: {
+      await _client.buildAndSubmit('tag.getTopAlbums', rootTag: 'albums', args: {
         'tag': tagName,
         'limit': limit?.toString(),
         'page': page?.toString(),
@@ -59,7 +59,7 @@ class LastFM_Tag {
     assert(limit == null || limit >= 1);
     assert(page == null || page >= 1);
 
-    return ArtistsList.parse(await _client.buildAndGet(
+    return ArtistsList.parse(await _client.buildAndSubmit(
       'tag.getTopArtists',
       rootTag: 'topArtists',
       args: {
@@ -72,7 +72,7 @@ class LastFM_Tag {
 
   Future<TagsList> getTopTags() async {
     return TagsList.parse(
-      await _client.buildAndGet('tag.getTopTags', rootTag: 'topTags'),
+      await _client.buildAndSubmit('tag.getTopTags', rootTag: 'topTags'),
     );
   }
 
@@ -86,7 +86,7 @@ class LastFM_Tag {
     assert(page == null || page >= 1);
 
     return TracksList.parse(
-      await _client.buildAndGet('tag.getTopTracks', rootTag: 'tracks', args: {
+      await _client.buildAndSubmit('tag.getTopTracks', rootTag: 'tracks', args: {
         'tag': tagName,
         'limit': limit?.toString(),
         'page': page?.toString(),
@@ -97,7 +97,7 @@ class LastFM_Tag {
   Future<List<DateTimePeriod>> getWeeklyChartList(String tagName) async {
     assert(tagName != null && tagName.isNotEmpty);
 
-    final queryResult = ((await _client.buildAndGet(
+    final queryResult = ((await _client.buildAndSubmit(
       'tag.getWeeklyChartList',
       rootTag: 'weeklyChartList',
       args: {'tag': tagName},
