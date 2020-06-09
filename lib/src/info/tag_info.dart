@@ -27,7 +27,7 @@ class TagInfo {
           tagUrl: data['url'],
           tagReach: parseInt(data['reach']),
           taggings: parseInt(data['taggings'] ?? data['count']),
-          streamable: parseStreamable(data['streamable']),
+          streamable: parseBool(data['streamable']),
           published: (data['wiki'] ?? const {})['published'],
           summary: (data['wiki'] ?? const {})['summary'],
           content: (data['wiki'] ?? const {})['content'],

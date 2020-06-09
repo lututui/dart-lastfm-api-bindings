@@ -2,6 +2,7 @@ import 'package:last_fm_api/src/api_base.dart';
 import 'package:last_fm_api/src/api_client.dart';
 import 'package:last_fm_api/src/assert.dart';
 import 'package:last_fm_api/src/exception.dart';
+import 'package:last_fm_api/src/info/scrobble_info.dart';
 import 'package:last_fm_api/src/info/track_info.dart';
 import 'package:last_fm_api/src/lists/tags_list.dart';
 import 'package:last_fm_api/src/lists/tracks_list.dart';
@@ -10,10 +11,6 @@ class LastFM_Track {
   final LastFM_API_Client _client;
 
   const LastFM_Track(this._client) : assert(_client != null);
-
-  Future addTags(String artistName, String trackName, List<String> tags) {
-    throw UnimplementedError();
-  }
 
   Future<TrackInfo> getCorrection(String artistName, String trackName) async {
     assert(artistName != null && artistName.isNotEmpty);
@@ -66,7 +63,7 @@ class LastFM_Track {
     bool autocorrect,
     int limit,
   }) async {
-    assertOptionalStrings([trackName, artistName], mbid);
+    assertEitherOrStrings([trackName, artistName], mbid);
     assertOptionalPositive(limit);
 
     return TracksList.parse(await _client.buildAndSubmit(
@@ -90,7 +87,7 @@ class LastFM_Track {
     bool autocorrect,
   }) async {
     assertString(user);
-    assertOptionalStrings([trackName, artistName], mbid);
+    assertEitherOrStrings([trackName, artistName], mbid);
 
     return TagsList.parse(await _client.buildAndSubmit(
       'track.getTags',
@@ -111,7 +108,7 @@ class LastFM_Track {
     String mbid,
     bool autocorrect,
   }) async {
-    assertOptionalStrings([artistName, trackName], mbid);
+    assertEitherOrStrings([artistName, trackName], mbid);
 
     return TagsList.parse(await _client.buildAndSubmit(
       'track.getTopTags',
@@ -123,18 +120,6 @@ class LastFM_Track {
         'autocorrect': autocorrect ?? false ? '1' : '0'
       },
     ));
-  }
-
-  Future love(String artistName, String trackName) {
-    throw UnimplementedError();
-  }
-
-  Future removeTag(String artistName, String trackName, String tagName) {
-    throw UnimplementedError();
-  }
-
-  Future scrobble(Map<String, Map<String, String>> scrobbleInfo) {
-    throw UnimplementedError();
   }
 
   Future<TracksList> search(
@@ -168,19 +153,158 @@ class LastFM_Track {
     });
   }
 
-  Future unLove(String artistName, String trackName) {
-    throw UnimplementedError();
+  Future love(String artistName, String trackName) {
+    assert(_client.isAuth);
+    assertString(artistName);
+    assertString(trackName);
+
+    return _client.buildAndSubmit(
+      'track.love',
+      args: {'artist': artistName, 'track': trackName},
+    );
   }
 
-  Future updateNowPlaying(
+  Future unlove(String artistName, String trackName) {
+    assert(_client.isAuth);
+    assertString(artistName);
+    assertString(trackName);
+
+    return _client.buildAndSubmit(
+      'track.unlove',
+      args: {'artist': artistName, 'track': trackName},
+    );
+  }
+
+  Future<ScrobbleInfo> updateNowPlaying(
     String artistName,
-    String trackName, [
+    String trackName, {
     String albumName,
     int trackNumber,
     String mbid,
-    String duration,
+    Duration duration,
     String albumArtist,
-  ]) {
-    throw UnimplementedError();
+    String context,
+  }) async {
+    assertString(artistName);
+    assertString(trackName);
+    assertOptionalString(albumName);
+    assertOptionalPositive(trackNumber);
+    assertOptionalString(mbid);
+    assertOptionalPositive(duration?.inSeconds);
+    assertOptionalString(albumArtist);
+    assertOptionalString(context);
+
+    const methodName = 'track.updateNowPlaying';
+
+    final queryResult = await _client.buildAndSubmit(
+      methodName,
+      rootTag: 'nowPlaying',
+      args: {
+        'artist': artistName,
+        'track': trackName,
+        'album': albumName,
+        'trackNumber': trackNumber?.toString(),
+        'mbid': mbid,
+        'duration': duration?.inSeconds?.toString(),
+        'albumArtist': albumArtist,
+        'context': context
+      },
+    );
+
+    ApiException.checkMissingKeys(
+      methodName,
+      ['artist', 'ignoredMessage', 'album', 'albumArtist', 'track'],
+      queryResult,
+    );
+
+    return ScrobbleInfo.parse(queryResult);
+  }
+
+  Future scrobble(
+    String artistName,
+    String trackName,
+    DateTime timestamp, {
+    String albumName,
+    String mbid,
+    String albumArtist,
+    Duration duration,
+    int trackNumber,
+    bool chosenByUser,
+    String streamId,
+    String context,
+  }) async {
+    assert(_client.isAuth);
+    assertString(artistName);
+    assertString(trackName);
+    assert(timestamp != null);
+    assertOptionalString(albumName);
+    assertOptionalString(mbid);
+    assertOptionalString(albumArtist);
+    assertOptionalPositive(duration?.inSeconds);
+    assertOptionalPositive(trackNumber);
+    assertOptionalString(streamId);
+    assertOptionalString(context);
+
+    const methodName = 'track.scrobble';
+
+    final queryResult = await _client.buildAndSubmit(
+      methodName,
+      rootTag: 'scrobbles',
+      args: {
+        'artist': artistName,
+        'track': trackName,
+        'timestamp': (timestamp.millisecondsSinceEpoch ~/ 1000).toString(),
+        'album': albumName,
+        'context': context,
+        'streamId': streamId,
+        'chosenByUser': chosenByUser ?? false ? '1' : '0',
+        'trackNumber': trackNumber?.toString(),
+        'mbid': mbid,
+        'albumArtist': albumArtist,
+        'duration': duration?.inSeconds?.toString(),
+      },
+    );
+
+    ApiException.checkMissingKeys(
+      methodName,
+      [
+        'artist',
+        'ignoredMessage',
+        'album',
+        'albumArtist',
+        'track',
+        'timestamp'
+      ],
+      queryResult,
+    );
+
+    return ScrobbleInfo.parse(queryResult);
+  }
+
+  Future<bool> addTags(String artistName, String trackName, List<String> tags) {
+    assert(_client.isAuth);
+    assertString(artistName);
+    assertString(trackName);
+    assert(tags != null && tags.isNotEmpty && tags.length <= 10);
+    tags.forEach(assertString);
+
+    return _client.buildAndSubmit('track.addTags', args: {
+      'artist': artistName,
+      'track': trackName,
+      'tags': tags.join(',')
+    }).then((value) => value.isEmpty);
+  }
+
+  Future<bool> removeTag(String artistName, String trackName, String tagName) {
+    assert(_client.isAuth);
+    assertString(artistName);
+    assertString(trackName);
+    assertString(tagName);
+
+    return _client.buildAndSubmit('track.removeTag', args: {
+      'artist': artistName,
+      'track': trackName,
+      'tags': tagName,
+    }).then((value) => value.isEmpty);
   }
 }

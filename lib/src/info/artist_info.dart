@@ -42,7 +42,7 @@ class ArtistInfo {
       mbid: data['mbid'],
       artistUrl: data['url'],
       artistImages: ImageInfo.parse(data['image']),
-      streamable: parseStreamable(data['streamable']),
+      streamable: parseBool(data['streamable']),
       listeners: parseInt(data['listeners']),
       playCount: parseInt(data['playcount']),
       similarArtists: data['similarArtists'],

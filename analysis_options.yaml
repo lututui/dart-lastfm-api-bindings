@@ -5,9 +5,22 @@ include: package:pedantic/analysis_options.yaml
 
 # For lint rules and documentation, see http://dart-lang.github.io/linter/lints.
 # Uncomment to specify additional rules.
-# linter:
-#   rules:
-#     - camel_case_types
+linter:
+   rules:
+     - avoid_returning_null
+     - type_annotate_public_apis
+     - type_init_formals
+     - iterable_contains_unrelated_type
+     - list_remove_unrelated_type
+     - prefer_void_to_null
+     - test_types_in_equals
+     - unrelated_type_equality_checks
+     - always_declare_return_types
+     - avoid_catching_errors
+     - avoid_implementing_value_types
+     - prefer_const_declarations
+     - prefer_const_constructors
+     - prefer_const_literals_to_create_immutables
 
 analyzer:
 #   exclude:

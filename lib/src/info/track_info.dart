@@ -2,6 +2,8 @@ import 'package:last_fm_api/src/api_base.dart';
 import 'package:last_fm_api/src/info/album_info.dart';
 import 'package:last_fm_api/src/info/artist_info.dart';
 import 'package:last_fm_api/src/lists/tags_list.dart';
+import 'package:meta/meta.dart';
+import 'package:timeago/timeago.dart';
 
 class TrackInfo {
   final String trackId;
@@ -18,6 +20,8 @@ class TrackInfo {
   final String published;
   final String summary;
   final String content;
+  final bool nowPlaying;
+  final DateTime scrobbleDate;
 
   TrackInfo(
     this.trackName, {
@@ -34,10 +38,15 @@ class TrackInfo {
     this.published,
     this.summary,
     this.content,
-  }) : assert(trackName != null && trackName.isNotEmpty);
+    @required this.nowPlaying,
+    this.scrobbleDate,
+  })  : assert(trackName != null && trackName.isNotEmpty),
+        assert(nowPlaying != null);
 
   factory TrackInfo.parse(Map<String, dynamic> data) {
     final wiki = data['wiki'] ?? const {};
+    final metadata = data['@attr'] ?? const {};
+    final scrobbledDate = (data['date'] ?? const {})['uts'];
 
     return TrackInfo(
       decodeString(data['name']),
@@ -45,7 +54,7 @@ class TrackInfo {
       mbid: data['mbid'],
       url: data['url'],
       duration: Duration(seconds: parseInt(data['duration'])),
-      streamable: parseStreamable(data['streamable']),
+      streamable: parseBool(data['streamable']),
       listeners: parseInt(data['listeners']),
       playCount: parseInt(data['playcount']),
       trackArtist: ArtistInfo.parse(data['artist']),
@@ -54,9 +63,31 @@ class TrackInfo {
       published: wiki['published'],
       summary: wiki['summary'],
       content: wiki['content'],
+      nowPlaying: metadata['nowplaying'] == 'true',
+      scrobbleDate: scrobbledDate != null
+          ? DateTime.fromMillisecondsSinceEpoch(parseInt(scrobbledDate) * 1000)
+          : null,
     );
   }
 
   @override
-  String toString() => 'TrackInfo($trackName, ${trackArtist.artistName})';
+  String toString() {
+    if (nowPlaying) {
+      return 'TrackInfo(${[
+        trackName,
+        trackArtist?.artistName,
+        'playing now'
+      ].join(', ')})';
+    }
+
+    if (scrobbleDate != null) {
+      return 'TrackInfo(${[
+        trackName,
+        trackArtist?.artistName,
+        'scrobbled ${format(scrobbleDate.toLocal())}'
+      ].join(', ')})';
+    }
+
+    return 'TrackInfo(${[trackName, trackArtist?.artistName].join(', ')})';
+  }
 }

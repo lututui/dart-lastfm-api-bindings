@@ -41,7 +41,7 @@ class LastFM_Artist {
     bool autocorrect,
     String usernamePlayCount,
   }) async {
-    assertOptionalStrings([artistName], mbid);
+    assertEitherOrStrings([artistName], mbid);
 
     return ArtistInfo.parse(await _client.buildAndSubmit(
       'artist.getInfo',
@@ -62,7 +62,7 @@ class LastFM_Artist {
     int limit,
     bool autocorrect,
   }) async {
-    assertOptionalStrings([artistName], mbid);
+    assertEitherOrStrings([artistName], mbid);
     assertOptionalPositive(limit);
 
     return ArtistsList.parse(await _client.buildAndSubmit(
@@ -84,7 +84,7 @@ class LastFM_Artist {
     bool autocorrect,
   }) async {
     assertString(username);
-    assertOptionalStrings([artistName], mbid);
+    assertEitherOrStrings([artistName], mbid);
 
     return TagsList.parse(await _client.buildAndSubmit(
       'artist.getTags',
@@ -129,7 +129,7 @@ class LastFM_Artist {
     String mbid,
     bool autocorrect,
   }) async {
-    assertOptionalStrings([artistName], mbid);
+    assertEitherOrStrings([artistName], mbid);
 
     return TagsList.parse(await _client.buildAndSubmit(
       'artist.getTopTags',
@@ -193,13 +193,26 @@ class LastFM_Artist {
     });
   }
 
-  // TODO: Requires auth
-  Future removeTag(String artistName, String tag) {
-    throw UnimplementedError();
+  Future<bool> addTags(String artistName, List<String> tags) {
+    assert(_client.isAuth);
+    assertString(artistName);
+    assert(tags != null && tags.isNotEmpty && tags.length <= 10);
+    tags.forEach(assertString);
+
+    return _client.buildAndSubmit('artist.addTags', args: {
+      'artist': artistName,
+      'tags': tags.join(',')
+    }).then((value) => value.isEmpty);
   }
 
-  // TODO: Requires auth
-  Future addTags(String artistName, List<String> tags) {
-    throw UnimplementedError();
+  Future<bool> removeTag(String artistName, String tagName) {
+    assert(_client.isAuth);
+    assertString(artistName);
+    assertString(tagName);
+
+    return _client.buildAndSubmit('artist.removeTag', args: {
+      'artist': artistName,
+      'tags': tagName,
+    }).then((value) => value.isEmpty);
   }
 }

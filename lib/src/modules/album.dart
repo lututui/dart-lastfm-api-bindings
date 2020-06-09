@@ -19,7 +19,7 @@ class LastFM_Album {
     String usernamePlayCount,
     String lang,
   }) async {
-    assertOptionalStrings([artistName, albumName], mbid);
+    assertEitherOrStrings([artistName, albumName], mbid);
 
     return AlbumInfo.parse(await _client.buildAndSubmit(
       'album.getInfo',
@@ -43,7 +43,7 @@ class LastFM_Album {
     bool autocorrect,
   }) async {
     assertString(user);
-    assertOptionalStrings([artistName, albumName], mbid);
+    assertEitherOrStrings([artistName, albumName], mbid);
 
     return TagsList.parse(await _client.buildAndSubmit(
       'album.getTags',
@@ -64,7 +64,7 @@ class LastFM_Album {
     String mbid,
     bool autocorrect,
   }) async {
-    assertOptionalStrings([artistName, albumName], mbid);
+    assertEitherOrStrings([artistName, albumName], mbid);
 
     return TagsList.parse(await _client.buildAndSubmit(
       'album.getTopTags',
@@ -103,13 +103,38 @@ class LastFM_Album {
     });
   }
 
-  // TODO: Requires auth
-  Future addTags(String artistName, String albumName, List<String> tags) {
-    throw UnimplementedError();
+  Future<bool> addTags(
+    String artistName,
+    String albumName,
+    List<String> tags,
+  ) async {
+    assert(_client.isAuth);
+    assertString(artistName);
+    assertString(albumName);
+    assert(tags != null && tags.isNotEmpty && tags.length <= 10);
+    tags.forEach(assertString);
+
+    return _client.buildAndSubmit('album.addTags', args: {
+      'artist': artistName,
+      'album': albumName,
+      'tags': tags.join(',')
+    }).then((value) => value.isEmpty);
   }
 
-  // TODO: Auth required
-  Future removeTag(String artistName, String albumName, String tagName) {
-    throw UnimplementedError();
+  Future<bool> removeTag(
+    String artistName,
+    String albumName,
+    String tagName,
+  ) async {
+    assert(_client.isAuth);
+    assertString(artistName);
+    assertString(albumName);
+    assertString(tagName);
+
+    return _client.buildAndSubmit('album.removeTag', args: {
+      'artist': artistName,
+      'album': albumName,
+      'tags': tagName,
+    }).then((value) => value.isEmpty);
   }
 }

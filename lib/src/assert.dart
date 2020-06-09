@@ -4,9 +4,14 @@ void assertString(String s) {
 }
 
 @pragma('vm:prefer-inline')
-void assertOptionalStrings(List<String> either, String or) {
+void assertEitherOrStrings(List<String> either, String or) {
   assert(either.every((element) => element != null && element.isNotEmpty) ||
       (or != null && or.isNotEmpty));
+}
+
+@pragma('vm:prefer-inline')
+void assertOptionalString(String optional) {
+  assert(optional == null || optional.isNotEmpty);
 }
 
 @pragma('vm:prefer-inline')

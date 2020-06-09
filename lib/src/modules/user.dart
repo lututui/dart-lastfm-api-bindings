@@ -43,8 +43,11 @@ class LastFM_User {
     assert(username != null && username.isNotEmpty);
 
     return UserInfo.parse(
-      await _client.buildAndSubmit('user.getInfo',
-          rootTag: 'user', args: {'user': username}),
+      await _client.buildAndSubmit(
+        'user.getInfo',
+        rootTag: 'user',
+        args: {'user': username},
+      ),
     );
   }
 
@@ -83,16 +86,19 @@ class LastFM_User {
     assert(limit == null || limit >= 1);
     assert(page == null || page >= 1);
 
-    final apiMethod = 'user.getPersonalTags';
+    const apiMethod = 'user.getPersonalTags';
 
-    final queryResult =
-        await _client.buildAndSubmit(apiMethod, rootTag: 'taggings', args: {
-      'user': username,
-      'tag': tag,
-      'taggingtype': taggingType.toString(),
-      'limit': limit?.toString(),
-      'page': page?.toString()
-    });
+    final queryResult = await _client.buildAndSubmit(
+      apiMethod,
+      rootTag: 'taggings',
+      args: {
+        'user': username,
+        'tag': tag,
+        'taggingtype': taggingType.toString(),
+        'limit': limit?.toString(),
+        'page': page?.toString()
+      },
+    );
 
     if (taggingType == TaggingType.album) {
       ApiException.checkMissingKeys(apiMethod, ['albums'], queryResult);

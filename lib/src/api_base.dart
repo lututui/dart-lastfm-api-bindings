@@ -30,7 +30,7 @@ class LastFM_API {
     );
 
     return LastFM_API._(
-      client: client,
+      client,
       album: LastFM_Album(client),
       artist: LastFM_Artist(client),
       auth: LastFM_Auth(client),
@@ -43,8 +43,8 @@ class LastFM_API {
     );
   }
 
-  const LastFM_API._({
-    @required this.client,
+  const LastFM_API._(
+    this._client, {
     @required this.album,
     @required this.artist,
     @required this.auth,
@@ -56,7 +56,8 @@ class LastFM_API {
     @required this.user,
   });
 
-  final LastFM_API_Client client;
+  final LastFM_API_Client _client;
+
   final LastFM_Album album;
   final LastFM_Artist artist;
   final LastFM_Auth auth;
@@ -73,23 +74,24 @@ class LastFM_API {
     {'format': 'json'},
   );
 
-  set sessionKey(String key) => client.sessionKey = key;
+  set sessionKey(String key) => _client.sessionKey = key;
 }
 
-bool parseStreamable(streamable) {
-  if (streamable == null) return false;
+bool parseBool(dynamic maybeBool) {
+  if (maybeBool == null) return false;
 
-  if (streamable is String) {
-    return parseInt(streamable) == 1;
-  } else if (streamable is Map<String, dynamic>) {
-    return streamable.values.any((element) => element == '1');
+  if (maybeBool is String) {
+    return parseInt(maybeBool) == 1;
+  } else if (maybeBool is Map<String, dynamic>) {
+    return maybeBool.values.any((element) => element == '1');
   }
 
-  throw FormatException('Streamable format not recognized: '
-      '${streamable.runtimeType}');
+  throw FormatException(
+    'Bool format not recognized: $maybeBool (${maybeBool.runtimeType})',
+  );
 }
 
-int parseInt(maybeInt) {
+int parseInt(dynamic maybeInt) {
   if (maybeInt == null) return 0;
   if (maybeInt is int) return maybeInt;
   if (maybeInt is String) {
@@ -98,7 +100,9 @@ int parseInt(maybeInt) {
     return int.parse(maybeInt);
   }
 
-  throw FormatException();
+  throw FormatException(
+    'Int format not recognized: $maybeInt (${maybeInt.runtimeType})',
+  );
 }
 
 String decodeString(String target) {
