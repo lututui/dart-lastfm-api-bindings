@@ -1,7 +1,8 @@
 import 'package:last_fm_api/src/api_base.dart';
+import 'package:last_fm_api/src/api_entity_info.dart';
 import 'package:last_fm_api/src/info/image.dart';
 
-class UserInfo {
+class UserInfo extends ApiEntityInfo {
   final String userId;
   final String username;
   final String realName;
@@ -15,6 +16,9 @@ class UserInfo {
   final int playlists;
   final String bootstrap;
   final DateTime registered;
+
+  @override
+  Map<String, String> identify() => {'user': username};
 
   UserInfo({
     this.userId,

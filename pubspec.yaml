@@ -1,6 +1,6 @@
 name: last_fm_api
 description: LastFM API bindings for Dart
-version: 0.0.1
+version: 0.1.0
 homepage: https://github.com/lututui/dart-lastfm-api-bindings
 
 publish_to: 'none'

@@ -1,31 +1,52 @@
 import 'package:last_fm_api/src/api_base.dart';
 import 'package:last_fm_api/src/api_client.dart';
+import 'package:last_fm_api/src/api_module.dart';
 import 'package:last_fm_api/src/assert.dart';
 import 'package:last_fm_api/src/exception.dart';
 import 'package:last_fm_api/src/info/artist_info.dart';
-import 'package:last_fm_api/src/lists/albums_list.dart';
 import 'package:last_fm_api/src/lists/artists_list.dart';
-import 'package:last_fm_api/src/lists/tags_list.dart';
-import 'package:last_fm_api/src/lists/tracks_list.dart';
+import 'package:last_fm_api/src/mixins/taggable.dart';
+import 'package:last_fm_api/src/mixins/top_albums.dart';
+import 'package:last_fm_api/src/mixins/top_tracks.dart';
 
-class LastFM_Artist {
-  final LastFM_API_Client _client;
+/// The 'artist' module
+///
+/// {@category Module}
+class LastFM_Artist extends ApiModule
+    with Taggable<ArtistInfo>, TopAlbums<ArtistInfo>, TopTracks<ArtistInfo> {
+  /// Creates a new instance for the 'artist' module
+  ///
+  /// Usually created by [LastFM_API]
+  const LastFM_Artist(LastFM_API_Client client) : super('artist', client);
 
-  const LastFM_Artist(this._client) : assert(_client != null);
-
+  /// Corrects an artist's name
+  ///
+  /// Use the Last.fm corrections data to check whether the supplied
+  /// [artistName] has a correction to a canonical artist.
+  ///
+  /// Returns a [ArtistInfo] with the corrected info.
+  ///
+  /// {@macro LastFmApi.no_auth_template}
   Future<ArtistInfo> getCorrection(String artistName) async {
-    assertString(artistName);
-
     const methodName = 'artist.getCorrection';
 
-    final queryResult = await _client.buildAndSubmit(
+    if (artistName == null || artistName.isEmpty) {
+      throw ArgumentError('Invalid artist name: $artistName');
+    }
+
+    final queryResult = await client.buildAndSubmit(
       methodName,
       rootTag: 'corrections',
       args: {'artist': artistName},
     );
 
-    ApiException.checkMissingKeys(methodName, ['correction'], queryResult);
-    ApiException.checkMissingKeys(
+    LastFmApiException.checkMissingKeys(
+      methodName,
+      ['correction'],
+      queryResult,
+    );
+
+    LastFmApiException.checkMissingKeys(
       methodName,
       ['artist'],
       queryResult['correction'],
@@ -34,26 +55,55 @@ class LastFM_Artist {
     return ArtistInfo.parse(queryResult['correction']['artist']);
   }
 
+  /// Get an artist
+  ///
+  /// Get the metadata for an artist on Last.fm as a [ArtistInfo] using
+  /// [artistName] or [mbid]. If available, includes biography, truncated at
+  /// 300 characters.
+  ///
+  /// {@macro LastFmApi.autocorrect_template}
+  ///
+  /// If [username] is given, that user's playcount for this artist is included
+  /// in the response.
+  ///
+  /// {@macro LastFmApi.lang_template}
+  ///
+  /// {@macro LastFmApi.no_auth_template}
   Future<ArtistInfo> getInfo({
     String artistName,
     String mbid,
     String lang,
     bool autocorrect,
-    String usernamePlayCount,
+    String username,
   }) async {
-    assertEitherOrStrings([artistName], mbid);
+    const methodName = 'artist.getInfo';
+    const rootTagName = 'artist';
 
-    return ArtistInfo.parse(await _client.buildAndSubmit(
-      'artist.getInfo',
-      rootTag: 'artist',
-      args: {
-        'artist': artistName,
-        'mbid': mbid,
-        'lang': lang,
-        'autocorrect': autocorrect ?? false ? '1' : '0',
-        'username': usernamePlayCount,
-      },
-    ));
+    if (mbid != null && mbid.isNotEmpty) {
+      return ArtistInfo.parse(await client.buildAndSubmit(
+        methodName,
+        rootTag: rootTagName,
+        args: {
+          'mbid': mbid,
+          'lang': lang,
+          'autocorrect': boolToArgument(autocorrect),
+          'username': username,
+        },
+      ));
+    } else if (artistName != null && artistName.isNotEmpty) {
+      return ArtistInfo.parse(await client.buildAndSubmit(
+        methodName,
+        rootTag: rootTagName,
+        args: {
+          'artist': artistName,
+          'lang': lang,
+          'autocorrect': boolToArgument(autocorrect),
+          'username': username,
+        },
+      ));
+    }
+
+    throw ArgumentError('Provide either an artist name or a mbid');
   }
 
   Future<ArtistsList> getSimilar({
@@ -65,7 +115,7 @@ class LastFM_Artist {
     assertEitherOrStrings([artistName], mbid);
     assertOptionalPositive(limit);
 
-    return ArtistsList.parse(await _client.buildAndSubmit(
+    return ArtistsList.parse(await client.buildAndSubmit(
       'artist.getSimilar',
       rootTag: 'similarArtists',
       args: {
@@ -77,97 +127,6 @@ class LastFM_Artist {
     ));
   }
 
-  Future<TagsList> getTags(
-    String username, {
-    String artistName,
-    String mbid,
-    bool autocorrect,
-  }) async {
-    assertString(username);
-    assertEitherOrStrings([artistName], mbid);
-
-    return TagsList.parse(await _client.buildAndSubmit(
-      'artist.getTags',
-      rootTag: 'tags',
-      args: {
-        'artist': artistName,
-        'mbid': mbid,
-        'user': username,
-        'autocorrect': autocorrect ?? false ? '1' : '0'
-      },
-    ));
-  }
-
-  Future<AlbumsList> getTopAlbums(
-    String artistName, {
-    String mbid,
-    bool autocorrect,
-    int page,
-    int limit,
-  }) async {
-    assert(artistName != null || (mbid != null && mbid.isNotEmpty));
-    assert(page == null || page >= 1);
-    assert(limit == null || limit >= 1);
-
-    return AlbumsList.parse(
-      await _client.buildAndSubmit(
-        'artist.getTopAlbums',
-        rootTag: 'topAlbums',
-        args: {
-          'artist': artistName,
-          'mbid': mbid,
-          'autocorrect': autocorrect ?? false ? '1' : '0',
-          'page': page?.toString(),
-          'limit': limit?.toString()
-        },
-      ),
-    );
-  }
-
-  Future<TagsList> getTopTags({
-    String artistName,
-    String mbid,
-    bool autocorrect,
-  }) async {
-    assertEitherOrStrings([artistName], mbid);
-
-    return TagsList.parse(await _client.buildAndSubmit(
-      'artist.getTopTags',
-      rootTag: 'topTags',
-      args: {
-        'artist': artistName,
-        'mbid': mbid,
-        'autocorrect': autocorrect ?? false ? '1' : '0'
-      },
-    ));
-  }
-
-  Future<TracksList> getTopTracks({
-    String artistName,
-    String mbid,
-    bool autocorrect,
-    int page,
-    int limit,
-  }) async {
-    assert(artistName != null || (mbid != null && mbid.isNotEmpty));
-    assert(page == null || page >= 1);
-    assert(limit == null || limit >= 1);
-
-    return TracksList.parse(
-      await _client.buildAndSubmit(
-        'artist.getTopTracks',
-        rootTag: 'topTracks',
-        args: {
-          'artist': artistName,
-          'mbid': mbid,
-          'autocorrect': autocorrect ?? false ? '1' : '0',
-          'page': page?.toString(),
-          'limit': limit?.toString()
-        },
-      ),
-    );
-  }
-
   Future<ArtistsList> search(String artistName, {int limit, int page}) async {
     assertString(artistName);
     assertOptionalPositive(limit);
@@ -175,7 +134,7 @@ class LastFM_Artist {
 
     const methodName = 'artist.search';
 
-    final queryResult = await _client.buildAndSubmit(
+    final queryResult = await client.buildAndSubmit(
       methodName,
       rootTag: 'results',
       args: {
@@ -185,34 +144,12 @@ class LastFM_Artist {
       },
     );
 
-    ApiException.checkMissingKeys(methodName, ['artistmatches'], queryResult);
+    LastFmApiException.checkMissingKeys(
+        methodName, ['artistmatches'], queryResult);
 
     return ArtistsList.parse({
       ...queryResult['artistmatches'],
       '@attr': buildSearchAttr(methodName, queryResult),
     });
-  }
-
-  Future<bool> addTags(String artistName, List<String> tags) {
-    assert(_client.isAuth);
-    assertString(artistName);
-    assert(tags != null && tags.isNotEmpty && tags.length <= 10);
-    tags.forEach(assertString);
-
-    return _client.buildAndSubmit('artist.addTags', args: {
-      'artist': artistName,
-      'tags': tags.join(',')
-    }).then((value) => value.isEmpty);
-  }
-
-  Future<bool> removeTag(String artistName, String tagName) {
-    assert(_client.isAuth);
-    assertString(artistName);
-    assertString(tagName);
-
-    return _client.buildAndSubmit('artist.removeTag', args: {
-      'artist': artistName,
-      'tags': tagName,
-    }).then((value) => value.isEmpty);
   }
 }

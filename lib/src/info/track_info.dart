@@ -1,14 +1,15 @@
 import 'package:last_fm_api/src/api_base.dart';
+import 'package:last_fm_api/src/api_entity_info.dart';
 import 'package:last_fm_api/src/info/album_info.dart';
 import 'package:last_fm_api/src/info/artist_info.dart';
 import 'package:last_fm_api/src/lists/tags_list.dart';
+import 'package:last_fm_api/src/mixins/mbid_holder.dart';
 import 'package:meta/meta.dart';
 import 'package:timeago/timeago.dart';
 
-class TrackInfo {
+class TrackInfo extends ApiEntityInfo with MbidHolder {
   final String trackId;
   final String trackName;
-  final String mbid;
   final String url;
   final Duration duration;
   final bool streamable;
@@ -22,6 +23,9 @@ class TrackInfo {
   final String content;
   final bool nowPlaying;
   final DateTime scrobbleDate;
+
+  @override
+  final String mbid;
 
   TrackInfo(
     this.trackName, {
@@ -68,6 +72,12 @@ class TrackInfo {
           ? DateTime.fromMillisecondsSinceEpoch(parseInt(scrobbledDate) * 1000)
           : null,
     );
+  }
+
+  @override
+  Map<String, String> identify() {
+    return super.identify() ??
+        {'artist': trackArtist.artistName, 'track': trackName};
   }
 
   @override

@@ -1,14 +1,15 @@
 import 'package:last_fm_api/src/api_base.dart';
+import 'package:last_fm_api/src/api_entity_info.dart';
 import 'package:last_fm_api/src/info/artist_info.dart';
 import 'package:last_fm_api/src/info/image.dart';
 import 'package:last_fm_api/src/lists/tags_list.dart';
 import 'package:last_fm_api/src/lists/tracks_list.dart';
+import 'package:last_fm_api/src/mixins/mbid_holder.dart';
 
-class AlbumInfo {
+class AlbumInfo extends ApiEntityInfo with MbidHolder {
   final String albumName;
   final ArtistInfo artist;
   final String albumId;
-  final String mbid;
   final String albumUrl;
   final String releaseDate;
   final ImageInfo albumImages;
@@ -17,9 +18,14 @@ class AlbumInfo {
   final TagsList tags;
   final TracksList tracks;
 
+  @override
+  final String mbid;
+
+  String get artistName => artist.artistName;
+
   AlbumInfo(
-    this.albumName, {
-    this.artist,
+    this.albumName,
+    this.artist, {
     this.albumId,
     this.mbid,
     this.albumUrl,
@@ -29,7 +35,8 @@ class AlbumInfo {
     this.playCount,
     this.tags,
     this.tracks,
-  }) : assert(albumName != null && albumName.isNotEmpty);
+  })  : assert(albumName != null && albumName.isNotEmpty),
+        assert(artist != null);
 
   factory AlbumInfo.parse(Map<String, dynamic> data) {
     if (data == null) return null;
@@ -40,7 +47,7 @@ class AlbumInfo {
 
     return AlbumInfo(
       decodeString(artistName),
-      artist: ArtistInfo.parse(data['artist']),
+      ArtistInfo.parse(data['artist']),
       albumId: data['id'],
       mbid: data['mbid'],
       albumUrl: data['url'],
@@ -51,6 +58,11 @@ class AlbumInfo {
       tags: TagsList.parse(data['tags']),
       tracks: TracksList.parse(data['tracks']),
     );
+  }
+
+  @override
+  Map<String, String> identify() {
+    return super.identify() ?? {'album': albumName, 'artist': artistName};
   }
 
   @override

@@ -1,9 +1,11 @@
 import 'package:last_fm_api/last_fm_api.dart';
+import 'package:last_fm_api/src/api_entity_info.dart';
 import 'package:last_fm_api/src/info/image.dart';
 import 'package:last_fm_api/src/lists/artists_list.dart';
 import 'package:last_fm_api/src/lists/tags_list.dart';
+import 'package:last_fm_api/src/mixins/mbid_holder.dart';
 
-class ArtistInfo {
+class ArtistInfo extends ApiEntityInfo with MbidHolder {
   final String artistName;
   final String mbid;
   final String artistUrl;
@@ -37,6 +39,8 @@ class ArtistInfo {
 
     if (data is String) return ArtistInfo(data);
 
+    final wiki = data['wiki'] ?? const {};
+
     return ArtistInfo(
       decodeString(data['name'] ?? data['#text']),
       mbid: data['mbid'],
@@ -47,10 +51,15 @@ class ArtistInfo {
       playCount: parseInt(data['playcount']),
       similarArtists: data['similarArtists'],
       tags: TagsList.parse(data['tags']),
-      published: (data['wiki'] ?? const {})['published'],
-      summary: (data['wiki'] ?? const {})['summary'],
-      bio: (data['wiki'] ?? const {})['bio'],
+      published: wiki['published'],
+      summary: wiki['summary'],
+      bio: wiki['bio'],
     );
+  }
+
+  @override
+  Map<String, String> identify() {
+    return super.identify() ?? {'artist': artistName};
   }
 
   @override

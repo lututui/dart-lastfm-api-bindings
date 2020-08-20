@@ -120,13 +120,13 @@ Map<String, dynamic> buildSearchAttr(
   String methodName,
   Map<String, dynamic> data,
 ) {
-  ApiException.checkMissingKeys(
+  LastFmApiException.checkMissingKeys(
     methodName,
     ['opensearch:Query', 'opensearch:itemsPerPage', 'opensearch:totalResults'],
     data,
   );
 
-  ApiException.checkMissingKeys(
+  LastFmApiException.checkMissingKeys(
     methodName,
     ['startPage'],
     data['opensearch:Query'],
@@ -142,3 +142,5 @@ Map<String, dynamic> buildSearchAttr(
     'totalPages': (total / perPage).ceil(),
   };
 }
+
+String boolToArgument(bool boolean) => boolean ?? false ? '1' : '0';

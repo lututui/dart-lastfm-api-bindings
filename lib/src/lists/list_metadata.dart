@@ -10,6 +10,7 @@ class ListMetadata {
   final String artist;
   final String tag;
   final String user;
+  final String album;
   final DateTimePeriod dateTimePeriod;
 
   const ListMetadata(
@@ -21,6 +22,7 @@ class ListMetadata {
     this.artist,
     this.tag,
     this.user,
+        this.album,
     this.dateTimePeriod,
   })  : assert(page != null),
         assert(perPage != null),
@@ -34,6 +36,7 @@ class ListMetadata {
     final artist = decodeString(data['artist']);
     final tag = decodeString(data['tag']);
     final user = decodeString(data['user']);
+    final album = decodeString(data['album']);
     final dateTimePeriod = DateTimePeriod.parse(
       parseInt(data['from']),
       parseInt(data['to']),
@@ -48,6 +51,7 @@ class ListMetadata {
       artist: artist,
       tag: tag,
       user: user,
+      album: album,
       dateTimePeriod: dateTimePeriod,
     );
   }

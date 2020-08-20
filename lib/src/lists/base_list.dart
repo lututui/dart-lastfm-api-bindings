@@ -1,9 +1,10 @@
 import 'dart:collection';
 
+import 'package:last_fm_api/src/api_entity_info.dart';
 import 'package:last_fm_api/src/lists/list_metadata.dart';
 import 'package:meta/meta.dart';
 
-abstract class BaseList<T> implements Iterable<T> {
+abstract class BaseList<T extends ApiEntityInfo> implements Iterable<T> {
   final List<T> elements;
   final ListMetadata metadata;
 

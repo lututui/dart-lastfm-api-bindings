@@ -1,6 +1,7 @@
 import 'package:last_fm_api/src/api_base.dart';
+import 'package:last_fm_api/src/api_entity_info.dart';
 
-class TagInfo {
+class TagInfo extends ApiEntityInfo {
   final String tagName;
   final String tagUrl;
   final int tagReach;
@@ -9,6 +10,11 @@ class TagInfo {
   final String published;
   final String summary;
   final String content;
+
+  @override
+  Map<String, String> identify() {
+    return {'tag': tagName};
+  }
 
   const TagInfo({
     this.tagName,

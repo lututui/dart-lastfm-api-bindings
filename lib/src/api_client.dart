@@ -98,7 +98,7 @@ class LastFM_API_Client extends BaseClient {
     String rootTag,
   ]) {
     if (response.statusCode != 200) {
-      throw ApiException.statusCode(
+      throw LastFmApiException.statusCode(
         methodString,
         response.statusCode,
         response.reasonPhrase,
@@ -106,13 +106,13 @@ class LastFM_API_Client extends BaseClient {
     }
 
     if (response.body == null || response.body.isEmpty) {
-      throw ApiException.emptyBody(methodString);
+      throw LastFmApiException.emptyBody(methodString);
     }
 
     final decodedBody = json.decode(response.body);
 
     if (decodedBody is! Map<String, dynamic>) {
-      throw ApiException.wrongFormat(
+      throw LastFmApiException.wrongFormat(
         methodString,
         'Map<String, dynamic>',
         decodedBody.runtimeType.toString(),
@@ -122,7 +122,7 @@ class LastFM_API_Client extends BaseClient {
     final mapResponse = decodedBody as Map<String, dynamic>;
 
     if (mapResponse['error'] != null) {
-      throw ApiException.errorCode(
+      throw LastFmApiException.errorCode(
         methodString,
         mapResponse['error'],
         mapResponse['message'],
@@ -133,13 +133,7 @@ class LastFM_API_Client extends BaseClient {
       return mapResponse;
     }
 
-    if (mapResponse[rootTag] == null) {
-      throw ApiException.parsingMissingKey(
-        methodString,
-        rootTag,
-        mapResponse.keys.toString(),
-      );
-    }
+    LastFmApiException.checkMissingKeys(methodString, [rootTag], mapResponse);
 
     return mapResponse[rootTag];
   }

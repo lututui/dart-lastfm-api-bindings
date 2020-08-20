@@ -1,6 +1,7 @@
 import 'package:last_fm_api/datetime_period.dart';
 import 'package:last_fm_api/src/api_base.dart';
 import 'package:last_fm_api/src/api_client.dart';
+import 'package:last_fm_api/src/api_module.dart';
 import 'package:last_fm_api/src/exception.dart';
 import 'package:last_fm_api/src/info/user_info.dart';
 import 'package:last_fm_api/src/lists/albums_list.dart';
@@ -12,10 +13,8 @@ import 'package:last_fm_api/src/lists/users_list.dart';
 import 'package:last_fm_api/src/period.dart';
 import 'package:last_fm_api/src/tagging_type.dart';
 
-class LastFM_User {
-  final LastFM_API_Client _client;
-
-  const LastFM_User(this._client);
+class LastFM_User extends ApiModule {
+  const LastFM_User(LastFM_API_Client client) : super('user', client);
 
   Future<UsersList> getFriends(
     String username, {
@@ -27,7 +26,7 @@ class LastFM_User {
     assert(limit == null || limit >= 1);
     assert(page == null || page >= 1);
 
-    return UsersList(await _client.buildAndSubmit(
+    return UsersList(await client.buildAndSubmit(
       'user.getFriends',
       rootTag: 'friends',
       args: {
@@ -43,7 +42,7 @@ class LastFM_User {
     assert(username != null && username.isNotEmpty);
 
     return UserInfo.parse(
-      await _client.buildAndSubmit(
+      await client.buildAndSubmit(
         'user.getInfo',
         rootTag: 'user',
         args: {'user': username},
@@ -61,7 +60,7 @@ class LastFM_User {
     assert(page == null || page >= 1);
 
     return TracksList.parse(
-      await _client.buildAndSubmit(
+      await client.buildAndSubmit(
         'user.getLovedTracks',
         rootTag: 'lovedTracks',
         args: {
@@ -88,7 +87,7 @@ class LastFM_User {
 
     const apiMethod = 'user.getPersonalTags';
 
-    final queryResult = await _client.buildAndSubmit(
+    final queryResult = await client.buildAndSubmit(
       apiMethod,
       rootTag: 'taggings',
       args: {
@@ -101,19 +100,19 @@ class LastFM_User {
     );
 
     if (taggingType == TaggingType.album) {
-      ApiException.checkMissingKeys(apiMethod, ['albums'], queryResult);
+      LastFmApiException.checkMissingKeys(apiMethod, ['albums'], queryResult);
 
       return AlbumsList.parse(
         {...queryResult['albums'], '@attr': queryResult['@attr']},
       );
     } else if (taggingType == TaggingType.artist) {
-      ApiException.checkMissingKeys(apiMethod, ['artists'], queryResult);
+      LastFmApiException.checkMissingKeys(apiMethod, ['artists'], queryResult);
 
       return ArtistsList.parse(
         {...queryResult['artists'], '@attr': queryResult['@attr']},
       );
     } else if (taggingType == TaggingType.track) {
-      ApiException.checkMissingKeys(apiMethod, ['tracks'], queryResult);
+      LastFmApiException.checkMissingKeys(apiMethod, ['tracks'], queryResult);
 
       return TracksList.parse(
         {...queryResult['tracks'], '@attr': queryResult['@attr']},
@@ -136,7 +135,7 @@ class LastFM_User {
     assert(page == null || page >= 1);
     assert(from == null || to == null || from.isBefore(to));
 
-    return TracksList.parse(await _client.buildAndSubmit(
+    return TracksList.parse(await client.buildAndSubmit(
       'user.getRecentTracks',
       rootTag: 'recentTracks',
       args: {
@@ -161,7 +160,7 @@ class LastFM_User {
     assert(page == null || page >= 1);
 
     return AlbumsList.parse(
-      await _client
+      await client
           .buildAndSubmit('user.getTopAlbums', rootTag: 'topAlbums', args: {
         'user': username,
         'period': period?.toString(),
@@ -181,7 +180,7 @@ class LastFM_User {
     assert(limit == null || limit >= 1);
     assert(page == null || page >= 1);
 
-    return ArtistsList.parse(await _client.buildAndSubmit(
+    return ArtistsList.parse(await client.buildAndSubmit(
       'user.getTopArtists',
       rootTag: 'topArtists',
       args: {
@@ -197,7 +196,7 @@ class LastFM_User {
     assert(username != null && username.isNotEmpty);
     assert(limit == null || limit >= 1);
 
-    return TagsList.parse(await _client.buildAndSubmit(
+    return TagsList.parse(await client.buildAndSubmit(
       'user.getTopTags',
       rootTag: 'topTags',
       args: {'user': username, 'limit': limit?.toString()},
@@ -215,7 +214,7 @@ class LastFM_User {
     assert(page == null || page >= 1);
 
     return TracksList.parse(
-      await _client.buildAndSubmit(
+      await client.buildAndSubmit(
         'user.getTopTracks',
         rootTag: 'topTracks',
         args: {
@@ -237,7 +236,7 @@ class LastFM_User {
     assert(username != null && username.isNotEmpty);
     assert((from == null && to == null) || period == null);
 
-    return AlbumsList.parse(await _client.buildAndSubmit(
+    return AlbumsList.parse(await client.buildAndSubmit(
       'user.getWeeklyAlbumChart',
       rootTag: 'weeklyAlbumChart',
       args: {
@@ -259,7 +258,7 @@ class LastFM_User {
     assert(username != null && username.isNotEmpty);
     assert((from == null && to == null) || period == null);
 
-    return ArtistsList.parse(await _client.buildAndSubmit(
+    return ArtistsList.parse(await client.buildAndSubmit(
       'user.getWeeklyArtistChart',
       rootTag: 'weeklyArtistChart',
       args: {
@@ -275,7 +274,7 @@ class LastFM_User {
   Future<List<DateTimePeriod>> getWeeklyChartList(String username) async {
     assert(username != null && username.isNotEmpty);
 
-    final queryResult = ((await _client.buildAndSubmit(
+    final queryResult = ((await client.buildAndSubmit(
       'user.getWeeklyChartList',
       rootTag: 'weeklyChartList',
       args: {'user': username},
@@ -297,7 +296,7 @@ class LastFM_User {
     assert(username != null && username.isNotEmpty);
     assert((from == null && to == null) || period == null);
 
-    return TracksList.parse(await _client.buildAndSubmit(
+    return TracksList.parse(await client.buildAndSubmit(
       'user.getWeeklyTrackChart',
       rootTag: 'weeklyTrackChart',
       args: {

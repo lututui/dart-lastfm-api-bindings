@@ -42,7 +42,7 @@ class LastFM_Auth {
       forcePost: true,
     );
 
-    ApiException.checkMissingKeys(methodName, ['token'], queryResult);
+    LastFmApiException.checkMissingKeys(methodName, ['token'], queryResult);
 
     return queryResult['token'];
   }
